@@ -18,6 +18,7 @@ import {
   TextField,
 } from "./fields";
 import { LocationPicker } from "./location-picker";
+import { MusicPreview } from "./music-preview";
 
 export interface PanelProps {
   invitationId: string;
@@ -555,6 +556,7 @@ export function HadiahMusikPanel({ config, mutate }: PanelProps) {
         </label>
         {music.enabled ? (
           <div className="space-y-3">
+            <MusicPreview track={music.track} />
             <div>
               <Label className="text-xs font-semibold">Pilihan musik</Label>
               <div className="mt-1.5 grid gap-1.5 sm:grid-cols-2">

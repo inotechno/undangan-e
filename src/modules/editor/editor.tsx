@@ -68,7 +68,7 @@ const SAVE_LABEL = {
 export function InvitationEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();
   const [config, setConfig] = useState<InvitationConfig>(initial.config);
-  const [status, setStatus] = useState(initial.status);
+  const status = initial.status;
   const [slug, setSlug] = useState(initial.slug);
   const [slugDraft, setSlugDraft] = useState(initial.slug);
   const [slugMsg, setSlugMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
@@ -111,19 +111,9 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
     }
   }
 
-  async function togglePublish() {
+  async function publish() {
     setLifecycleBusy(true);
     try {
-      if (status === "active") {
-        const res = await fetch(`/api/invitations/${initial.id}/unpublish`, { method: "POST" });
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        if (!res.ok) {
-          setSlugMsg({ tone: "err", text: data.error ?? "Gagal mengubah status" });
-          return;
-        }
-        setStatus("draft");
-        return;
-      }
       // Bayar & Terbitkan: flush autosave → buat order → halaman bayar QRIS.
       await saveNow({ config });
       const res = await fetch("/api/orders", {
@@ -187,9 +177,9 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
             </Button>
           ) : null}
           {status === "active" ? (
-            <Button size="sm" onClick={() => void togglePublish()} disabled={lifecycleBusy}>
-              {lifecycleBusy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Upload className="size-4" aria-hidden />}
-              Tarik
+            <Button render={<Link href="/dashboard/undangan" />} nativeButton={false} size="sm" variant="outline">
+              <ArrowLeft className="size-3.5" aria-hidden />
+              Kembali
             </Button>
           ) : initial.pendingOrderId ? (
             <Button
@@ -201,9 +191,9 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
               Bayar Sekarang
             </Button>
           ) : (
-            <Button size="sm" onClick={() => void togglePublish()} disabled={lifecycleBusy}>
+            <Button size="sm" onClick={() => void publish()} disabled={lifecycleBusy}>
               {lifecycleBusy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Upload className="size-4" aria-hidden />}
-              Bayar & Terbitkan
+              Bayar &amp; Terbitkan
             </Button>
           )}
           <Button size="sm" variant="ghost" onClick={() => void remove()}>

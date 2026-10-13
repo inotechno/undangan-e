@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, MapPin, Search, X } from "lucide-react";
+import { CheckCircle2, Loader2, MapPin, MousePointerClick, Search, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface NominatimResult {
   lat: string;
@@ -17,13 +18,18 @@ interface LocationPickerProps {
   onChange: (lat?: number, lng?: number, label?: string) => void;
 }
 
+const BBOX_PAD_LNG = 0.005;
+const BBOX_PAD_LAT = 0.003;
+
 export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [open, setOpen] = useState(false);
+  const [pickMode, setPickMode] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const boxRef = useRef<HTMLDivElement>(null);
+  const mapWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -64,22 +70,40 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
     onChange(la, lo, label);
     setQuery(r.display_name);
     setOpen(false);
+    setPickMode(false);
   }
 
   function clear() {
     setQuery("");
     setResults([]);
     setOpen(false);
+    setPickMode(false);
     onChange(undefined, undefined, "");
+  }
+
+  function onMapClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (!pickMode || lat == null || lng == null || !mapWrapRef.current) return;
+    const rect = mapWrapRef.current.getBoundingClientRect();
+    const fx = (e.clientX - rect.left) / rect.width;
+    const fy = (e.clientY - rect.top) / rect.height;
+    const west = lng - BBOX_PAD_LNG;
+    const east = lng + BBOX_PAD_LNG;
+    const north = lat + BBOX_PAD_LAT;
+    const south = lat - BBOX_PAD_LAT;
+    const newLng = west + fx * (east - west);
+    const newLat = north - fy * (north - south);
+    onChange(newLat, newLng, undefined);
+    setPickMode(false);
   }
 
   const hasPin = lat != null && lng != null;
   const embedUrl = hasPin
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${lng! - 0.005}%2C${lat! - 0.003}%2C${lng! + 0.005}%2C${lat! + 0.003}&layer=mapnik&marker=${lat}%2C${lng}`
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${lng! - BBOX_PAD_LNG}%2C${lat! - BBOX_PAD_LAT}%2C${lng! + BBOX_PAD_LNG}%2C${lat! + BBOX_PAD_LAT}&layer=mapnik&marker=${lat}%2C${lng}`
     : null;
+  const gmapsUrl = hasPin ? `https://www.google.com/maps?q=${lat},${lng}` : null;
 
   return (
-    <div ref={boxRef} className="relative space-y-2">
+    <div ref={boxRef} className="relative space-y-2 sm:col-span-2">
       <Label className="text-xs font-semibold">Cari lokasi di peta</Label>
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-[#8a99a6]" aria-hidden />
@@ -101,7 +125,7 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
         ) : null}
       </div>
       {open && results.length > 0 ? (
-        <ul className="absolute z-50 max-h-48 w-full overflow-auto rounded-lg border border-border-warm bg-white shadow-lg">
+        <ul className="absolute z-50 max-h-56 w-full overflow-auto rounded-lg border border-border-warm bg-white shadow-lg">
           {results.map((r, i) => (
             <li key={i}>
               <button type="button" onClick={() => pick(r)} className="w-full px-3 py-2 text-left text-xs hover:bg-[#f2f8f8]">
@@ -113,9 +137,61 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
         </ul>
       ) : null}
       {embedUrl ? (
-        <div className="overflow-hidden rounded-lg border border-border-warm">
-          <iframe src={embedUrl} className="h-40 w-full" loading="lazy" title="Pratinjau lokasi" />
-        </div>
+        <>
+          <div
+            ref={mapWrapRef}
+            onClick={onMapClick}
+            className={cn(
+              "relative overflow-hidden rounded-lg border border-border-warm",
+              pickMode && "cursor-crosshair ring-2 ring-teal/40",
+            )}
+          >
+            <iframe
+              src={embedUrl}
+              className={cn("h-72 w-full sm:h-96", pickMode && "pointer-events-none")}
+              loading="lazy"
+              title="Pratinjau lokasi"
+            />
+            {pickMode ? (
+              <div className="absolute inset-0 grid place-items-center bg-teal/10 backdrop-blur-[1px]">
+                <p className="rounded-full bg-teal px-3 py-1.5 text-[11px] font-bold text-white shadow">
+                  Klik titik tujuan di peta…
+                </p>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {hasPin ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-2.5 py-1 text-[10px] font-bold text-teal-dark">
+                <CheckCircle2 className="size-3" aria-hidden />
+                Tautan Google Maps terisi otomatis
+              </span>
+            ) : null}
+            {hasPin ? (
+              <a
+                href={gmapsUrl!}
+                target="_blank"
+                rel="noreferrer"
+                className="truncate text-[10px] font-semibold text-teal underline-offset-2 hover:underline"
+              >
+                {gmapsUrl}
+              </a>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setPickMode((v) => !v)}
+              className={cn(
+                "ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold transition-colors",
+                pickMode
+                  ? "border-teal bg-teal text-white"
+                  : "border-border-warm text-[#536477] hover:border-teal/60 hover:text-teal",
+              )}
+            >
+              <MousePointerClick className="size-3" aria-hidden />
+              {pickMode ? "Mode klik aktif" : "Klik di peta"}
+            </button>
+          </div>
+        </>
       ) : null}
     </div>
   );

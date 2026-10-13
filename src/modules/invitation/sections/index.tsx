@@ -369,7 +369,7 @@ function ScheduleMaps({ ctx }: { ctx: SectionContext }) {
                   >
                     <iframe
                       src={`https://www.openstreetmap.org/export/embed.html?bbox=${schedule.lng - 0.005}%2C${schedule.lat - 0.003}%2C${schedule.lng + 0.005}%2C${schedule.lat + 0.003}&layer=mapnik&marker=${schedule.lat}%2C${schedule.lng}`}
-                      className="h-40 w-full"
+                      className="h-64 w-full sm:h-80"
                       loading="lazy"
                       title={`Peta ${schedule.venue}`}
                     />
