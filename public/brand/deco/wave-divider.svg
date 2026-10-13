@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" fill="none">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="1200" y2="0">
+      <stop stop-color="#0D9488" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#0D9488" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#0D9488" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- wave pattern -->
+  <path d="M0 100 Q150 40 300 100 T600 100 T900 100 T1200 100" stroke="url(#fade)" stroke-width="1.5" fill="none"/>
+  <path d="M0 120 Q150 60 300 120 T600 120 T900 120 T1200 120" stroke="url(#fade)" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <path d="M0 80 Q150 20 300 80 T600 80 T900 80 T1200 80" stroke="url(#fade)" stroke-width="0.8" fill="none" opacity="0.6"/>
+  <!-- small hearts along path -->
+  <path d="M298 95 C299 93 302 93 303 95 C304 97 301 100 300 102 C299 100 296 97 298 95Z" fill="#0D9488" fill-opacity="0.12"/>
+  <path d="M598 95 C599 93 602 93 603 95 C604 97 601 100 600 102 C599 100 596 97 598 95Z" fill="#0D9488" fill-opacity="0.12"/>
+  <path d="M898 95 C899 93 902 93 903 95 C904 97 901 100 900 102 C899 100 896 97 898 95Z" fill="#0D9488" fill-opacity="0.12"/>
+</svg>

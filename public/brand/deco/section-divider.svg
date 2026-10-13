@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 150" fill="none">
+  <defs>
+    <linearGradient id="sectionDiv" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0"/>
+      <stop offset="20%" stop-color="#0D9488" stop-opacity="0.15"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.25"/>
+      <stop offset="80%" stop-color="#0D9488" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0D9488" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main flowing line -->
+  <path d="M0 75 Q150 40 300 75 T600 75 T900 75 T1200 75" 
+        stroke="url(#sectionDiv)" stroke-width="2" fill="none"/>
+  
+  <!-- Secondary subtle wave -->
+  <path d="M0 85 Q150 100 300 85 T600 85 T900 85 T1200 85" 
+        stroke="url(#sectionDiv)" stroke-width="1" fill="none" stroke-opacity="0.5"/>
+  
+  <!-- Center floral ornament -->
+  <g transform="translate(600, 75)">
+    <!-- Small flower -->
+    <ellipse cx="0" cy="-12" rx="4" ry="10" fill="#0D9488" fill-opacity="0.2"/>
+    <ellipse cx="10" cy="-6" rx="4" ry="10" fill="#0D9488" fill-opacity="0.18" transform="rotate(45)"/>
+    <ellipse cx="12" cy="4" rx="4" ry="10" fill="#0D9488" fill-opacity="0.2" transform="rotate(90)"/>
+    <ellipse cx="6" cy="12" rx="4" ry="10" fill="#0D9488" fill-opacity="0.18" transform="rotate(135)"/>
+    <ellipse cx="-4" cy="14" rx="4" ry="10" fill="#0D9488" fill-opacity="0.2" transform="rotate(180)"/>
+    <ellipse cx="-12" cy="8" rx="4" ry="10" fill="#0D9488" fill-opacity="0.18" transform="rotate(225)"/>
+    <ellipse cx="-14" cy="-2" rx="4" ry="10" fill="#0D9488" fill-opacity="0.2" transform="rotate(270)"/>
+    <ellipse cx="-8" cy="-10" rx="4" ry="10" fill="#0D9488" fill-opacity="0.18" transform="rotate(315)"/>
+    <circle cx="0" cy="0" r="5" fill="#0D9488" fill-opacity="0.25"/>
+    
+    <!-- Side decorative lines -->
+    <line x1="-80" y1="0" x2="-30" y2="0" stroke="url(#sectionDiv)" stroke-width="1"/>
+    <line x1="30" y1="0" x2="80" y2="0" stroke="url(#sectionDiv)" stroke-width="1"/>
+    
+    <!-- End diamonds -->
+    <path d="M-90 0 L-85 -4 L-80 0 L-85 4 Z" fill="#0D9488" fill-opacity="0.25"/>
+    <path d="M80 0 L85 -4 L90 0 L85 4 Z" fill="#0D9488" fill-opacity="0.25"/>
+  </g>
+  
+  <!-- Scattered sparkles -->
+  <g fill="#0D9488" fill-opacity="0.15">
+    <circle cx="150" cy="65" r="2"/>
+    <circle cx="250" cy="85" r="1.5"/>
+    <circle cx="350" cy="70" r="2"/>
+    <circle cx="850" cy="80" r="1.5"/>
+    <circle cx="950" cy="65" r="2"/>
+    <circle cx="1050" cy="85" r="1.5"/>
+  </g>
+</svg>

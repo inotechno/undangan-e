@@ -1,0 +1,16 @@
+/* UndanganE brand tokens — generated alongside brand/scripts/build.mjs.
+   Sumber kebenaran warna logo: brand/src/icon.svg + brand/scripts/build.mjs. */
+:root {
+  --brand-rose: #cc6470;
+  --brand-charcoal: #373c3f;
+  --brand-black: #000000;
+  --brand-white: #ffffff;
+
+  --brand-font-wordmark:
+    "Montserrat", sans-serif; /* 700 — hanya untuk teks UI, logo sudah outline */
+  --brand-font-tagline: "Montserrat", sans-serif; /* 400 */
+
+  --brand-min-lockup-width: 120px;
+  --brand-min-icon-size: 16px;
+  --brand-clear-space: 0.5; /* × tinggi ikon */
+}

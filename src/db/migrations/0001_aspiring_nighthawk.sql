@@ -1,0 +1,1 @@
+ALTER TABLE "templates" ADD COLUMN "section_labels" jsonb DEFAULT '{}'::jsonb NOT NULL;

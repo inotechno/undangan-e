@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none">
+  <defs>
+    <radialGradient id="glowCenter" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.12"/>
+      <stop offset="40%" stop-color="#10B981" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0D9488" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Center glow -->
+  <circle cx="300" cy="300" r="250" fill="url(#glowCenter)"/>
+  
+  <!-- Concentric rings -->
+  <circle cx="300" cy="300" r="280" stroke="url(#ringGrad)" stroke-width="1" fill="none" stroke-opacity="0.3"/>
+  <circle cx="300" cy="300" r="220" stroke="url(#ringGrad)" stroke-width="1" fill="none" stroke-opacity="0.25"/>
+  <circle cx="300" cy="300" r="160" stroke="url(#ringGrad)" stroke-width="1" fill="none" stroke-opacity="0.2"/>
+  <circle cx="300" cy="300" r="100" stroke="url(#ringGrad)" stroke-width="1" fill="none" stroke-opacity="0.15"/>
+  
+  <!-- Double rings - wedding symbol -->
+  <circle cx="270" cy="300" r="50" stroke="#0D9488" stroke-width="3" fill="none" stroke-opacity="0.25"/>
+  <circle cx="330" cy="300" r="50" stroke="#10B981" stroke-width="3" fill="none" stroke-opacity="0.2"/>
+  
+  <!-- Ring highlights -->
+  <path d="M240 285 Q250 275 270 275" stroke="#0D9488" stroke-width="2" fill="none" stroke-opacity="0.3" stroke-linecap="round"/>
+  <path d="M310 285 Q320 275 340 275" stroke="#10B981" stroke-width="2" fill="none" stroke-opacity="0.25" stroke-linecap="round"/>
+  
+  <!-- Decorative leaves around rings -->
+  <g transform="translate(220, 240)">
+    <ellipse cx="0" cy="0" rx="20" ry="8" fill="url(#leafGrad)" transform="rotate(-45)"/>
+    <ellipse cx="8" cy="8" rx="16" ry="6" fill="url(#leafGrad)" transform="rotate(-25)"/>
+  </g>
+  <g transform="translate(380, 240)">
+    <ellipse cx="0" cy="0" rx="20" ry="8" fill="url(#leafGrad)" transform="rotate(45)"/>
+    <ellipse cx="-8" cy="8" rx="16" ry="6" fill="url(#leafGrad)" transform="rotate(25)"/>
+  </g>
+  <g transform="translate(220, 360)">
+    <ellipse cx="0" cy="0" rx="20" ry="8" fill="url(#leafGrad)" transform="rotate(-135)"/>
+    <ellipse cx="8" cy="-8" rx="16" ry="6" fill="url(#leafGrad)" transform="rotate(-155)"/>
+  </g>
+  <g transform="translate(380, 360)">
+    <ellipse cx="0" cy="0" rx="20" ry="8" fill="url(#leafGrad)" transform="rotate(135)"/>
+    <ellipse cx="-8" cy="-8" rx="16" ry="6" fill="url(#leafGrad)" transform="rotate(155)"/>
+  </g>
+  
+  <!-- Small diamond accent on top -->
+  <g transform="translate(300, 230)">
+    <path d="M0 -12 L8 0 L0 12 L-8 0 Z" fill="#0D9488" fill-opacity="0.2"/>
+    <path d="M0 -6 L4 0 L0 6 L-4 0 Z" fill="#0D9488" fill-opacity="0.3"/>
+  </g>
+  
+  <!-- Scattered sparkle dots -->
+  <g fill="#0D9488">
+    <circle cx="150" cy="150" r="2.5" fill-opacity="0.2"/>
+    <circle cx="450" cy="150" r="2" fill-opacity="0.15"/>
+    <circle cx="150" cy="450" r="2" fill-opacity="0.15"/>
+    <circle cx="450" cy="450" r="2.5" fill-opacity="0.2"/>
+    <circle cx="300" cy="100" r="2" fill-opacity="0.18"/>
+    <circle cx="300" cy="500" r="2" fill-opacity="0.18"/>
+    <circle cx="100" cy="300" r="2" fill-opacity="0.15"/>
+    <circle cx="500" cy="300" r="2" fill-opacity="0.15"/>
+  </g>
+  
+  <!-- Star sparkles at corners -->
+  <g fill="#0D9488" fill-opacity="0.2">
+    <path d="M180 180 L183 188 L191 188 L185 193 L187 201 L180 196 L173 201 L175 193 L169 188 L177 188 Z"/>
+    <path d="M420 180 L423 188 L431 188 L425 193 L427 201 L420 196 L413 201 L415 193 L409 188 L417 188 Z"/>
+    <path d="M180 420 L183 428 L191 428 L185 433 L187 441 L180 436 L173 441 L175 433 L169 428 L177 428 Z"/>
+    <path d="M420 420 L423 428 L431 428 L425 433 L427 441 L420 436 L413 441 L415 433 L409 428 L417 428 Z"/>
+  </g>
+</svg>

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: undangane
+          POSTGRES_PASSWORD: undangane
+          POSTGRES_DB: undangane
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U undangane"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - "6379:6379"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://undangane:undangane@localhost:5432/undangane
+      REDIS_URL: redis://localhost:6379
+      AUTH_SECRET: ci-secret-0123456789abcdefghijklmnop
+      APP_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Generate migrations
+        run: npm run db:generate
+
+      - name: Migrate
+        run: npm run db:migrate
+
+      - name: Seed
+        run: npm run db:seed
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,39 @@
+# 13 — Keamanan (Threat Model & Mitigasi)
+
+## 1. Aset
+Sesi & data pengguna, data tamu (nama, phone), QR/kode tamu, token kelola, kredensial Duitku, R2 media, katalog, ledger keuangan.
+
+## 2. Ancaman utama & mitigasi
+
+| # | Ancaman | Mitigasi | Sisa risiko |
+|---|---|---|---|
+| T1 | IDOR / akses lintas user | Query ber-scope wajib; matriks authz di CI; token kelola terbatas 1 undangan | — |
+| T2 | Webhook palsu / bayar tanpa bayar | HMAC callback; inbox idempoten; redirect browser bukan sumber kebenaran | Kebocoran API key (rotasi) |
+| T3 | Spam tamu auto-create | Rate-limit IP, honeypot, cap per undangan, normalisasi dedupe, audit (`10`) | IP bersih masih bisa create ≤ limit |
+| T4 | Kebocoran link kelola | Hash-only, multi-token cabut/regenerasi, rate limit, opsional PIN, data minimal (`09`) | Token dibagikan ke pihak salah (revoke) |
+| T5 | Pemalsuan QR check-in | HMAC payload, cek scope undangan, log duplikat; QR ≠ kredensial owner | QR tamu sah dipakai orang lain (kuota) |
+| T6 | Upload berbahaya (SVG XSS, oversize) | Allowlist MIME + sniff, re-encode gambar, key R2 tak dikontrol user, CSP | Zero-day lib image (patch) |
+| T7 | Pencurian sesi admin | Cookie HttpOnly+Secure, 2FA wajib admin, rotasi login, audit aksi sensitif | Device trusted disalahgunakan |
+| T8 | Voucher double-spend | Redeem atomik SQL + kompensasi batal | Race sempit tertangkap lock |
+| T9 | Brute force auth/RSVP | Rate limit per IP/email, captcha opsional di RSVP massal | — |
+| T10 | Kebocoran PII via log | Logger tanpa body pII; redaksi phone; audit meta minimal | — |
+| T11 | Supply chain (app deps) | Lockfile, audit CI, dependabot/renovate + review | — |
+| T12 | Kompromi VPS | SSH key-only, fail2ban di Caddy/ssh, patch otomatis, backup offsite R2 | Single VPS (backup = mitigasi) |
+| T13 | XSS di konten undangan | React escaping; sanitasi buku tamu (escape, max length); CSP header | — |
+| T14 | Pengungkapan data lewat URL | `guest_code` acak; tanpa id numerik; projection publik minimal (`10`) | — |
+
+## 3. Control horizontal
+- Security headers: CSP (app & invite), HSTS, Referrer-Policy, X-Content-Type-Options, frame-ancestors untuk halaman admin (`DENY`).
+- `robots.txt` + `noindex` untuk /app, /admin, /kelola.
+- Secrets hanya env; `.env` tidak masuk git; rotasi saat insiden.
+
+## 4. Privasi & retensi
+- Data tamu = PII: retensi default hapus/arsipkan N hari setelah acara (setting, saran 90) — keputusan pemilik di `17`.
+- Permintaan hapus data (PDP Law): alur admin hapus undangan + tamu + media.
+
+## 5. Audit & respons insiden
+- `audit_logs` append-only untuk: login admin, ubah harga, CRUD voucher, refund, revoke token/QR regen, approve/revoke template (fase nanti), payout.
+- Runbook insiden: (1) putus akses (rotate secrets, revoke token), (2) identifikasi dampak via log, (3) komunikasi ke pengguna terdampak, (4) patch + post-mortem tertulis di `docs/`.
+
+## 6. Uji keamanan
+CI: authz matrix, signature webhook valid/invalid, sandbox escape (fase nanti), rate-limit. Manual: review dependent vuln, header scan, upload fuzzing ringan.

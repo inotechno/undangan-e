@@ -1,0 +1,22 @@
+{
+  email admin@localhost
+}
+
+:80 {
+  encode gzip
+  reverse_proxy app:3000
+}
+
+# Aktifkan setelah domain dibeli (docs/15):
+# app.undangane.com {
+#   encode gzip
+#   reverse_proxy app:3000
+# }
+# invite.undangane.com {
+#   encode gzip
+#   reverse_proxy app:3000
+# }
+# tpl.undangane.com {
+#   encode gzip
+#   file_server
+# }

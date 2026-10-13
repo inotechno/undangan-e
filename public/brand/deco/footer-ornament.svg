@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" fill="none">
+  <defs>
+    <linearGradient id="footerWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#373C3F" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#0D9488" stop-opacity="0.3"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.4"/>
+      <stop offset="70%" stop-color="#0D9488" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#373C3F" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="footerWave2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#373C3F" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#34D399" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#34D399" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#373C3F" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Wave layers -->
+  <path d="M0 100 Q100 60 200 100 T400 100 T600 100 T800 100" 
+        stroke="url(#footerWave)" stroke-width="2" fill="none"/>
+  <path d="M0 110 Q100 80 200 110 T400 110 T600 110 T800 110" 
+        stroke="url(#footerWave2)" stroke-width="1.5" fill="none"/>
+  <path d="M0 90 Q100 120 200 90 T400 90 T600 90 T800 90" 
+        stroke="url(#footerWave)" stroke-width="1" fill="none" stroke-opacity="0.5"/>
+  
+  <!-- Center ornament -->
+  <g transform="translate(400, 100)">
+    <path d="M0 -20 L15 0 L0 20 L-15 0 Z" stroke="#0D9488" stroke-width="1.5" fill="none" fill-opacity="0.4"/>
+    <path d="M0 -12 L9 0 L0 12 L-9 0 Z" stroke="#10B981" stroke-width="1" fill="none" fill-opacity="0.3"/>
+    <circle cx="0" cy="0" r="4" fill="#0D9488" fill-opacity="0.4"/>
+    
+    <!-- Side lines -->
+    <line x1="-60" y1="0" x2="-25" y2="0" stroke="url(#footerWave)" stroke-width="1"/>
+    <line x1="25" y1="0" x2="60" y2="0" stroke="url(#footerWave)" stroke-width="1"/>
+    
+    <!-- End dots -->
+    <circle cx="-70" cy="0" r="2" fill="#0D9488" fill-opacity="0.3"/>
+    <circle cx="70" cy="0" r="2" fill="#0D9488" fill-opacity="0.3"/>
+  </g>
+  
+  <!-- Sparkle dots -->
+  <g fill="#0D9488" fill-opacity="0.2">
+    <circle cx="100" cy="85" r="2"/>
+    <circle cx="200" cy="115" r="1.5"/>
+    <circle cx="300" cy="90" r="2"/>
+    <circle cx="500" cy="110" r="1.5"/>
+    <circle cx="600" cy="85" r="2"/>
+    <circle cx="700" cy="115" r="1.5"/>
+  </g>
+</svg>

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — UndanganE</title>
+  <style>
+    :root{
+      --teal:#0D9488;--teal-dark:#087f76;--teal-soft:#e7f6f4;
+      --ink:#12283b;--muted:#667789;--line:#e7edf0;--surface:#fff;
+      --page:#f6f9fa;--green:#15803d;--green-bg:#e9f8ef;
+      --amber:#a16207;--amber-bg:#fff7df;--red:#be123c;--red-bg:#fff0f2;
+      --shadow:0 8px 24px rgba(18,40,59,.045);
+    }
+    *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px}
+    button,input,select{font:inherit}button{cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
+    .sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 15px;display:flex;flex-direction:column;gap:26px}
+    .brand{display:flex;align-items:center;gap:10px;padding:0 9px 8px;font-weight:800;font-size:19px;letter-spacing:-.5px}
+    .brand-mark{width:35px;height:35px;border-radius:12px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 5px 12px #0d948833}
+    .brand small{display:block;font-size:7px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+    .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#9aa8b4;font-weight:800;padding:0 12px;margin:3px 0 8px}
+    .nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#536477;text-align:left;padding:12px;border-radius:11px;display:flex;align-items:center;gap:12px;transition:.18s}
+    .nav button:hover{background:#f2f8f8;color:var(--teal)}.nav button.active{background:var(--teal-soft);color:var(--teal-dark);font-weight:700}
+    .nav .ico{width:20px;text-align:center;font-size:17px}.nav .count{margin-left:auto;font-size:11px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:2px 6px}
+    .side-bottom{margin-top:auto}.reseller{background:linear-gradient(145deg,#eaf8f6,#f7fbfb);border:1px solid #d5eeeb;border-radius:16px;padding:17px;margin-bottom:16px}
+    .reseller .crown{width:35px;height:35px;border-radius:11px;background:#fff;color:#a16207;display:grid;place-items:center;font-size:18px;margin-bottom:12px}
+    .reseller strong{display:block;font-size:14px;margin-bottom:6px}.reseller p{margin:0 0 13px;color:var(--muted);font-size:12px;line-height:1.6}
+    .btn{border:1px solid transparent;border-radius:10px;padding:11px 15px;font-weight:700;display:inline-flex;justify-content:center;align-items:center;gap:8px;white-space:nowrap}
+    .btn-primary{background:var(--teal);color:white;box-shadow:0 4px 10px #0d948822}.btn-primary:hover{background:var(--teal-dark)}
+    .btn-outline{border-color:#d8e3e8;background:#fff;color:var(--ink)}.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+    .btn-small{padding:8px 11px;font-size:12px}.full{width:100%}
+    .side-user{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:18px 6px 0}
+    .avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#d5efeb;color:#087f76;font-weight:800;flex-shrink:0}
+    .side-user strong{display:block;font-size:12px}.side-user small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    .main{min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;gap:18px;position:sticky;top:0;z-index:10}
+    .search{display:flex;align-items:center;gap:10px;border:1px solid #e0e8ed;background:#fbfcfd;border-radius:11px;padding:0 13px;height:42px;width:min(490px,55%);color:#8a99a6}
+    .search input{border:0;outline:0;background:transparent;width:100%;color:var(--ink)}
+    .top-actions{display:flex;align-items:center;gap:18px}.icon-btn{border:1px solid var(--line);background:white;width:40px;height:40px;border-radius:12px;font-size:17px;position:relative}
+    .dot{width:7px;height:7px;background:#e05264;border-radius:50%;position:absolute;right:8px;top:7px}
+    .profile{display:flex;align-items:center;gap:10px}.profile .avatar{background:#e1efed}.profile strong{font-size:12px;display:block}.profile small{font-size:11px;color:var(--muted);display:block;margin-top:3px}
+    .content{padding:28px 30px 40px;max-width:1700px;margin:auto}.welcome{display:flex;align-items:center;justify-content:space-between;gap:20px;background:linear-gradient(110deg,#e7f7f5,#f3fbfa);border:1px solid #dcefeb;border-radius:18px;padding:26px 28px;margin-bottom:20px;overflow:hidden;position:relative}
+    .welcome:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #b6e1dc;border-radius:50%;right:16%;top:-150px;box-shadow:0 0 0 25px #ffffff25,0 0 0 50px #ffffff20;pointer-events:none}
+    .eyebrow{font-size:10px;color:var(--teal-dark);font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px}
+    h1,h2,h3,p{margin-top:0}h1{font-size:clamp(23px,2.2vw,30px);letter-spacing:-.9px;margin-bottom:9px} .welcome p{color:#536777;margin-bottom:17px;line-height:1.65;max-width:600px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.welcome-art{width:190px;height:128px;border-radius:18px;background:#fff9;display:grid;place-items:center;font-size:54px;color:var(--teal);transform:rotate(3deg);border:1px solid #fff;box-shadow:var(--shadow);flex-shrink:0;margin-right:20px}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:23px}
+    .stat,.panel{background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}
+    .stat{padding:19px;display:flex;align-items:center;gap:13px;min-width:0}.stat-icon{width:45px;height:45px;border-radius:14px;background:var(--teal-soft);color:var(--teal-dark);display:grid;place-items:center;font-size:21px;flex-shrink:0}
+    .stat-label{font-size:12px;color:var(--muted);margin-bottom:5px}.stat-value{font-size:25px;font-weight:800;letter-spacing:-.8px}.stat-note{font-size:10px;color:var(--green);margin-top:5px}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}.panel{padding:21px;margin-bottom:18px;min-width:0}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.panel-head h2{font-size:17px;letter-spacing:-.3px;margin:0}.subtle{font-size:12px;color:var(--muted)}
+    .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}.filter{border:1px solid transparent;background:#f3f6f8;color:#657587;border-radius:999px;padding:8px 12px;font-size:11px}.filter.active{background:var(--teal);color:white}
+    .list-tools{display:flex;align-items:center;gap:8px}.mini-search{width:180px;height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px;outline-color:var(--teal)}
+    .select{height:36px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);padding:0 10px;font-size:12px}
+    .invitation{display:grid;grid-template-columns:minmax(190px,1.4fr) repeat(3,minmax(55px,.5fr)) auto;align-items:center;gap:13px;padding:15px 0;border-top:1px solid #edf1f3}
+    .inv-main{display:flex;align-items:center;gap:12px;min-width:0}.thumb{width:62px;height:76px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#e0f3f0,#f7f7ee);border:1px solid #e3eeeb;font-size:26px;flex-shrink:0}
+    .thumb.rose{background:linear-gradient(145deg,#fbe8e7,#fff6f1)}.thumb.gold{background:linear-gradient(145deg,#f3e6d3,#fffaf0)}.thumb.dark{background:linear-gradient(145deg,#173d45,#0d2533);color:#d8c28b}
+    .inv-title{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}.slug{font-size:11px;color:var(--teal-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:7px}.meta{font-size:10px;color:var(--muted);line-height:1.5}
+    .status{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:700;white-space:nowrap}.published{background:var(--green-bg);color:var(--green)}.draft{background:#f0f3f6;color:#607080}.expired{background:var(--red-bg);color:var(--red)}
+    .metric{text-align:center}.metric strong{display:block;font-size:13px}.metric span{display:block;font-size:10px;color:var(--muted);margin-top:4px}.inv-actions{display:flex;gap:6px;align-items:center}
+    .more{border:0;background:transparent;font-size:19px;color:#80909e;padding:5px}.empty{display:none;text-align:center;color:var(--muted);padding:30px}
+    .steps{display:grid;gap:17px}.step{display:flex;align-items:flex-start;gap:12px}.step-number{width:31px;height:31px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;flex-shrink:0}.step strong{display:block;font-size:12px;margin:1px 0 4px}.step p{font-size:11px;line-height:1.5;color:var(--muted);margin:0}
+    .template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.template-card{min-width:0}.template-preview{height:112px;border-radius:10px;background:linear-gradient(145deg,#e6f3ef,#fff);display:grid;place-items:center;font-size:28px;border:1px solid var(--line);margin-bottom:8px}.template-preview.rose{background:linear-gradient(145deg,#f6dfdf,#fff8f2)}.template-preview.dark{background:linear-gradient(145deg,#1e3c40,#111d2a);color:#ead4a2}.template-card strong{font-size:11px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.template-card small{font-size:10px;color:var(--muted)}
+    .help-card{background:#eaf7f5;border-color:#d8efeb}.help-row{display:flex;gap:12px;align-items:flex-start}.help-row .stat-icon{background:white}.help-row h3{font-size:14px;margin:2px 0 7px}.help-row p{font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:13px}
+    .footer-note{text-align:center;color:#8a98a5;font-size:10px;padding:5px 0 0}
+    .toast{position:fixed;right:24px;bottom:24px;background:#123d3a;color:#fff;border-radius:12px;padding:13px 18px;box-shadow:0 12px 35px #123d3a33;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none;z-index:30}.toast.show{opacity:1;transform:translateY(0)}
+    .mobile-menu{display:none}
+    @media(max-width:1250px){.app{grid-template-columns:220px minmax(0,1fr)}.layout{grid-template-columns:minmax(0,1fr) 270px}.content{padding:22px}.topbar{padding:0 22px}.invitation{grid-template-columns:minmax(170px,1.3fr) repeat(2,minmax(50px,.45fr)) auto}.metric:nth-of-type(4){display:none}.welcome-art{width:130px;margin:0}.stats{gap:10px}.stat{padding:15px}.stat-value{font-size:22px}}
+    @media(max-width:980px){.app{grid-template-columns:72px minmax(0,1fr)}.sidebar{padding:22px 10px}.brand{padding:0;justify-content:center}.brand-text,.nav-label,.nav button .nav-text,.nav .count,.reseller,.side-user .user-copy{display:none}.nav button{justify-content:center;padding:13px 8px}.nav .ico{font-size:19px}.side-user{justify-content:center;padding:16px 0 0}.layout{grid-template-columns:1fr}.right-column{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.right-column .panel{margin-bottom:0}.help-card{grid-column:span 2}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.welcome-art{display:none}}
+    @media(max-width:650px){.app{display:block}.sidebar{display:none}.topbar{height:64px;padding:0 14px}.mobile-menu{display:inline-flex}.search{width:auto;flex:1;height:38px}.top-actions{gap:8px}.profile .profile-copy{display:none}.profile .avatar{width:34px;height:34px}.content{padding:16px 13px 28px}.welcome{padding:21px 18px;border-radius:15px}.welcome p{font-size:12px}.welcome .btn{flex:1}.stats{gap:9px}.stat{padding:13px;gap:9px}.stat-icon{width:37px;height:37px;font-size:18px}.stat-value{font-size:21px}.stat-label{font-size:10px}.layout{gap:12px}.panel{padding:15px;margin-bottom:13px}.panel-head{align-items:flex-start;flex-wrap:wrap}.list-tools{width:100%}.mini-search{flex:1;min-width:0}.invitation{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:13px 0}.inv-main{min-width:0}.thumb{width:52px;height:64px}.inv-metrics{grid-column:1/-1;display:flex;gap:20px;padding-left:64px}.metric{display:block!important;text-align:left}.inv-actions{grid-column:2;grid-row:1}.inv-actions .btn-outline{display:none}.right-column{display:block}.right-column .panel{margin-bottom:13px}.help-card{grid-column:auto}.template-preview{height:100px}.template-grid{gap:7px}.topbar .search{font-size:12px}.profile{gap:0}.footer-note{line-height:1.6}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">❖</div><div class="brand-text">UndanganE<small>UNDANGAN ELEKTRONIK</small></div></div>
+    <div>
+      <div class="nav-label">Menu Utama</div>
+      <nav class="nav" aria-label="Navigasi utama">
+        <button class="active" data-page="Dashboard"><span class="ico">⌂</span><span class="nav-text">Dashboard</span></button>
+        <button data-page="Undangan Saya"><span class="ico">▣</span><span class="nav-text">Undangan Saya</span></button>
+        <button data-page="Template"><span class="ico">▦</span><span class="nav-text">Template</span></button>
+        <button data-page="Tamu & RSVP"><span class="ico">♧</span><span class="nav-text">Tamu & RSVP</span></button>
+        <button data-page="Pesanan & Pembayaran"><span class="ico">▤</span><span class="nav-text">Pesanan & Pembayaran</span></button>
+        <button data-page="Gift Digital"><span class="ico">♧</span><span class="nav-text">Gift Digital</span></button>
+        <button data-page="Pesan & Ucapan"><span class="ico">▱</span><span class="nav-text">Pesan & Ucapan</span></button>
+        <button data-page="Buku Tamu"><span class="ico">▧</span><span class="nav-text">Buku Tamu</span></button>
+      </nav>
+    </div>
+    <div>
+      <div class="nav-label">Akun</div>
+      <nav class="nav"><button data-page="Pengaturan"><span class="ico">⚙</span><span class="nav-text">Pengaturan</span></button></nav>
+    </div>
+    <div class="side-bottom">
+      <div class="reseller"><div class="crown">♛</div><strong>Jadi Reseller UndanganE</strong><p>Dapatkan harga khusus untuk setiap undangan yang Anda buat.</p><button class="btn btn-primary full" data-action="reseller">Daftar Reseller →</button></div>
+      <div class="side-user"><div class="avatar">SA</div><div class="user-copy"><strong>Siti Aisyah</strong><small>Akun Reguler</small></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Buka menu">☰</button>
+      <label class="search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Cari undangan, template, atau fitur..."></label>
+      <div class="top-actions">
+        <button class="icon-btn" id="notifBtn" aria-label="Notifikasi">♧<span class="dot"></span></button>
+        <div class="profile"><div class="avatar">SA</div><div class="profile-copy"><strong>Siti Aisyah</strong><small>Akun Reguler ▾</small></div></div>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="welcome">
+        <div>
+          <div class="eyebrow">Dashboard UndanganE</div>
+          <h1>Selamat datang, Siti Aisyah! 👋</h1>
+          <p>Saatnya membuat undangan digital untuk momen spesial Anda. Pilih template favorit, sesuaikan konten, lalu bagikan dengan mudah.</p>
+          <div class="actions"><button class="btn btn-primary" data-action="create">＋ Buat Undangan Baru <span>→</span></button><button class="btn btn-outline" data-action="templates">Lihat Template</button></div>
+        </div>
+        <div class="welcome-art" aria-hidden="true">✉</div>
+      </section>
+
+      <section class="stats" aria-label="Ringkasan statistik">
+        <article class="stat"><div class="stat-icon">▤</div><div><div class="stat-label">Total Undangan</div><div class="stat-value">12</div><div class="stat-note">↑ 2 bulan ini</div></div></article>
+        <article class="stat"><div class="stat-icon">♧</div><div><div class="stat-label">Total Tamu</div><div class="stat-value">1.248</div><div class="stat-note">↑ 320 bulan ini</div></div></article>
+        <article class="stat"><div class="stat-icon">◉</div><div><div class="stat-label">RSVP Masuk</div><div class="stat-value">986</div><div class="stat-note">79% dari total tamu</div></div></article>
+        <article class="stat"><div class="stat-icon">◎</div><div><div class="stat-label">Total Kunjungan</div><div class="stat-value">12,5K</div><div class="stat-note">↑ 48% bulan ini</div></div></article>
+      </section>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Undangan Saya</h2><div class="subtle" style="margin-top:5px">Kelola dan pantau undangan Anda</div></div><button class="btn btn-primary btn-small" data-action="create">＋ Buat Baru</button></div>
+          <div class="filters" id="filters">
+            <button class="filter active" data-filter="all">Semua (5)</button><button class="filter" data-filter="published">Dipublikasikan (3)</button><button class="filter" data-filter="draft">Draft (1)</button><button class="filter" data-filter="expired">Kedaluwarsa (1)</button>
+          </div>
+          <div class="list-tools" style="margin-bottom:4px"><input class="mini-search" id="invSearch" type="search" placeholder="Cari undangan..."><select class="select" id="sortSelect" aria-label="Urutkan"><option value="newest">Terbaru</option><option value="name">Nama A–Z</option></select></div>
+          <div id="invitationList">
+            <article class="invitation" data-status="published" data-name="Pernikahan Aldi & Salsabila">
+              <div class="inv-main"><div class="thumb rose">❀</div><div style="min-width:0"><div class="inv-title">Pernikahan Aldi & Salsabila</div><div class="slug">undangane.id/aldi-salsabila</div><span class="status published">Dipublikasikan</span><div class="meta" style="margin-top:7px">▢ 15 Des 2026 · ◉ Jakarta</div></div></div>
+              <div class="inv-metrics" style="display:contents"><div class="metric"><strong>324</strong><span>Tamu</span></div><div class="metric"><strong>280</strong><span>RSVP</span></div><div class="metric"><strong>4,2K</strong><span>Kunjungan</span></div></div>
+              <div class="inv-actions"><button class="btn btn-outline btn-small" data-action="preview">Lihat</button><button class="btn btn-primary btn-small" data-action="manage">Kelola</button><button class="more" aria-label="Opsi lainnya" data-action="more">⋮</button></div>
+            </article>
+            <article class="invitation" data-status="published" data-name="Ulang Tahun Aisyah ke-3">
+              <div class="inv-main"><div class="thumb rose">🎂</div><div style="min-width:0"><div class="inv-title">Ulang Tahun Aisyah ke-3</div><div class="slug">undangane.id/aisyah-3th</div><span class="status published">Dipublikasikan</span><div class="meta" style="margin-top:7px">▢ 20 Des 2026 · ◉ Bandung</div></div></div>
+              <div class="inv-metrics" style="display:contents"><div class="metric"><strong>186</strong><span>Tamu</span></div><div class="metric"><strong>142</strong><span>RSVP</span></div><div class="metric"><strong>2,1K</strong><span>Kunjungan</span></div></div>
+              <div class="inv-actions"><button class="btn btn-outline btn-small" data-action="preview">Lihat</button><button class="btn btn-primary btn-small" data-action="manage">Kelola</button><button class="more" aria-label="Opsi lainnya" data-action="more">⋮</button></div>
+            </article>
+            <article class="invitation" data-status="draft" data-name="Aqiqah Muhammad Zayn">
+              <div class="inv-main"><div class="thumb">♧</div><div style="min-width:0"><div class="inv-title">Aqiqah Muhammad Zayn</div><div class="slug">Draft belum dipublikasikan</div><span class="status draft">Draft</span><div class="meta" style="margin-top:7px">▢ 28 Des 2026 · ◉ Serang</div></div></div>
+              <div class="inv-metrics" style="display:contents"><div class="metric"><strong>52</strong><span>Tamu</span></div><div class="metric"><strong>0</strong><span>RSVP</span></div><div class="metric"><strong>120</strong><span>Kunjungan</span></div></div>
+              <div class="inv-actions"><button class="btn btn-outline btn-small" data-action="edit">Lanjut Edit</button><button class="more" aria-label="Opsi lainnya" data-action="more">⋮</button></div>
+            </article>
+            <article class="invitation" data-status="published" data-name="Seminar Digital Marketing">
+              <div class="inv-main"><div class="thumb dark">✦</div><div style="min-width:0"><div class="inv-title">Seminar Digital Marketing</div><div class="slug">undangane.id/seminar-dm</div><span class="status published">Dipublikasikan</span><div class="meta" style="margin-top:7px">▢ 5 Jan 2027 · ◉ Yogyakarta</div></div></div>
+              <div class="inv-metrics" style="display:contents"><div class="metric"><strong>420</strong><span>Tamu</span></div><div class="metric"><strong>364</strong><span>RSVP</span></div><div class="metric"><strong>5,8K</strong><span>Kunjungan</span></div></div>
+              <div class="inv-actions"><button class="btn btn-outline btn-small" data-action="preview">Lihat</button><button class="btn btn-primary btn-small" data-action="manage">Kelola</button><button class="more" aria-label="Opsi lainnya" data-action="more">⋮</button></div>
+            </article>
+            <article class="invitation" data-status="expired" data-name="Lamaran Dita & Raka">
+              <div class="inv-main"><div class="thumb gold">❦</div><div style="min-width:0"><div class="inv-title">Lamaran Dita & Raka</div><div class="slug">undangane.id/dita-raka</div><span class="status expired">Kedaluwarsa</span><div class="meta" style="margin-top:7px">▢ 10 Nov 2026 · ◉ Tangerang</div></div></div>
+              <div class="inv-metrics" style="display:contents"><div class="metric"><strong>286</strong><span>Tamu</span></div><div class="metric"><strong>200</strong><span>RSVP</span></div><div class="metric"><strong>3,1K</strong><span>Kunjungan</span></div></div>
+              <div class="inv-actions"><button class="btn btn-outline btn-small" data-action="preview">Lihat</button><button class="btn btn-outline btn-small" data-action="duplicate">Duplikasi</button><button class="more" aria-label="Opsi lainnya" data-action="more">⋮</button></div>
+            </article>
+          </div>
+          <div class="empty" id="emptyState">Undangan tidak ditemukan.</div>
+        </section>
+
+        <aside class="right-column">
+          <section class="panel"><div class="panel-head"><h2>Langkah Cepat</h2><span class="subtle">Panduan</span></div><div class="steps">
+            <div class="step"><div class="step-number">1</div><div><strong>Pilih template</strong><p>Temukan desain yang sesuai dengan acara Anda.</p></div></div>
+            <div class="step"><div class="step-number">2</div><div><strong>Sesuaikan konten</strong><p>Isi informasi acara, foto, dan musik.</p></div></div>
+            <div class="step"><div class="step-number">3</div><div><strong>Kelola tamu</strong><p>Tambah daftar tamu dan pantau RSVP.</p></div></div>
+            <div class="step"><div class="step-number">4</div><div><strong>Publikasikan</strong><p>Bayar sekali, lalu bagikan tautan undangan.</p></div></div>
+          </div></section>
+          <section class="panel"><div class="panel-head"><h2>Template Populer</h2><button class="btn btn-outline btn-small" data-action="templates">Lihat Semua →</button></div><div class="template-grid">
+            <div class="template-card"><div class="template-preview">❀</div><strong>Serenity</strong><small>Elegan</small></div>
+            <div class="template-card"><div class="template-preview rose">❦</div><strong>Blossom</strong><small>Floral</small></div>
+            <div class="template-card"><div class="template-preview dark">✦</div><strong>Royal</strong><small>Luxury</small></div>
+          </div></section>
+          <section class="panel help-card"><div class="help-row"><div class="stat-icon">☏</div><div><h3>Butuh Bantuan?</h3><p>Tim kami siap membantu Anda melalui pusat bantuan.</p><button class="btn btn-outline btn-small" data-action="help">Hubungi Kami →</button></div></div></section>
+        </aside>
+      </div>
+      <div class="footer-note">© 2026 UndanganE · Undangan digital untuk momen spesial Anda.</div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function notify(message){
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'),2600);
+  }
+  let activeFilter = 'all';
+  const rows = [...document.querySelectorAll('.invitation')];
+  function updateList(){
+    const query = document.getElementById('invSearch').value.toLowerCase().trim();
+    const sort = document.getElementById('sortSelect').value;
+    const container = document.getElementById('invitationList');
+    const sorted = [...rows].sort((a,b)=>sort==='name'
+      ? a.dataset.name.localeCompare(b.dataset.name,'id')
+      : rows.indexOf(a)-rows.indexOf(b));
+    sorted.forEach(row=>container.appendChild(row));
+    let visible = 0;
+    rows.forEach(row=>{
+      const matchFilter = activeFilter==='all' || row.dataset.status===activeFilter;
+      const matchQuery = row.dataset.name.toLowerCase().includes(query);
+      row.style.display = matchFilter && matchQuery ? '' : 'none';
+      if(matchFilter && matchQuery) visible++;
+    });
+    document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+  }
+  document.getElementById('filters').addEventListener('click',e=>{
+    const button=e.target.closest('[data-filter]'); if(!button)return;
+    activeFilter=button.dataset.filter;
+    document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b===button));
+    updateList();
+  });
+  document.getElementById('invSearch').addEventListener('input',updateList);
+  document.getElementById('sortSelect').addEventListener('change',updateList);
+  document.getElementById('globalSearch').addEventListener('input',e=>{
+    document.getElementById('invSearch').value=e.target.value;
+    activeFilter='all';
+    document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));
+    updateList();
+  });
+  document.addEventListener('click',e=>{
+    const button=e.target.closest('[data-action]'); if(!button)return;
+    const actions={
+      create:'Alur buat undangan baru akan dibuka di aplikasi.',
+      templates:'Galeri template akan dibuka.',
+      preview:'Preview undangan dipilih.',
+      manage:'Halaman pengelolaan undangan akan dibuka.',
+      edit:'Editor undangan akan dibuka.',
+      more:'Menu opsi undangan.',
+      duplicate:'Undangan siap diduplikasi.',
+      reseller:'Informasi pendaftaran reseller akan dibuka.',
+      help:'Pusat bantuan akan dibuka.'
+    };
+    notify(actions[button.dataset.action]||'Fitur demo');
+  });
+  document.getElementById('notifBtn').addEventListener('click',()=>notify('Belum ada notifikasi baru.'));
+  document.getElementById('menuBtn').addEventListener('click',()=>notify('Navigasi akan tersedia pada menu aplikasi.'));
+  document.querySelectorAll('.nav button[data-page]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+      button.classList.add('active');
+      if(button.dataset.page!=='Dashboard') notify('Menu '+button.dataset.page+' dipilih (demo UI).');
+    });
+  });
+</script>
+</body>
+</html>

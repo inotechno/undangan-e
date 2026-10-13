@@ -1,0 +1,16 @@
+{
+  "name": "undangane-brand",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "trace": "node scripts/trace-icon.mjs",
+    "build": "node scripts/build.mjs",
+    "export": "node scripts/export.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "opentype.js": "^2.0.0",
+    "png-to-ico": "^3.0.2",
+    "potrace": "^2.1.8"
+  }
+}

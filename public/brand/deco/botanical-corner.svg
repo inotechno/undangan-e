@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" fill="none">
+  <defs>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="leafGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main branch - top left -->
+  <g transform="translate(50, 50)">
+    <path d="M0 200 C50 180, 120 150, 180 100 C220 70, 260 30, 280 0" stroke="#0D9488" stroke-width="2" stroke-opacity="0.2" fill="none"/>
+    
+    <!-- Leaves along branch -->
+    <ellipse cx="80" cy="160" rx="35" ry="15" fill="url(#leafGrad)" transform="rotate(-35 80 160)"/>
+    <ellipse cx="120" cy="130" rx="40" ry="16" fill="url(#leafGrad2)" transform="rotate(-30 120 130)"/>
+    <ellipse cx="160" cy="100" rx="38" ry="14" fill="url(#leafGrad)" transform="rotate(-25 160 100)"/>
+    <ellipse cx="200" cy="70" rx="35" ry="13" fill="url(#leafGrad2)" transform="rotate(-20 200 70)"/>
+    <ellipse cx="240" cy="40" rx="30" ry="12" fill="url(#leafGrad)" transform="rotate(-15 240 40)"/>
+    
+    <!-- Secondary leaves -->
+    <ellipse cx="60" cy="180" rx="25" ry="10" fill="url(#leafGrad2)" transform="rotate(-50 60 180)"/>
+    <ellipse cx="100" cy="150" rx="28" ry="11" fill="url(#leafGrad)" transform="rotate(-45 100 150)"/>
+    <ellipse cx="140" cy="120" rx="26" ry="10" fill="url(#leafGrad2)" transform="rotate(-40 140 120)"/>
+    <ellipse cx="180" cy="90" rx="24" ry="9" fill="url(#leafGrad)" transform="rotate(-35 180 90)"/>
+    <ellipse cx="220" cy="60" rx="22" ry="8" fill="url(#leafGrad2)" transform="rotate(-30 220 60)"/>
+  </g>
+  
+  <!-- Flower cluster - top right -->
+  <g transform="translate(650, 100)">
+    <circle cx="0" cy="0" r="20" fill="#0D9488" fill-opacity="0.1"/>
+    <circle cx="25" cy="10" r="15" fill="#10B981" fill-opacity="0.08"/>
+    <circle cx="-15" cy="15" r="12" fill="#34D399" fill-opacity="0.06"/>
+    <circle cx="10" cy="-15" r="14" fill="#0D9488" fill-opacity="0.09"/>
+    
+    <!-- Petals -->
+    <ellipse cx="0" cy="-25" rx="8" ry="18" fill="#0D9488" fill-opacity="0.12" transform="rotate(0 0 0)"/>
+    <ellipse cx="20" cy="-15" rx="8" ry="18" fill="#0D9488" fill-opacity="0.1" transform="rotate(45 0 0)"/>
+    <ellipse cx="25" cy="5" rx="8" ry="18" fill="#0D9488" fill-opacity="0.08" transform="rotate(90 0 0)"/>
+    <ellipse cx="15" cy="22" rx="8" ry="18" fill="#0D9488" fill-opacity="0.1" transform="rotate(135 0 0)"/>
+    <ellipse cx="-5" cy="25" rx="8" ry="18" fill="#0D9488" fill-opacity="0.12" transform="rotate(180 0 0)"/>
+    <ellipse cx="-22" cy="18" rx="8" ry="18" fill="#0D9488" fill-opacity="0.1" transform="rotate(225 0 0)"/>
+    <ellipse cx="-28" cy="-2" rx="8" ry="18" fill="#0D9488" fill-opacity="0.08" transform="rotate(270 0 0)"/>
+    <ellipse cx="-18" cy="-20" rx="8" ry="18" fill="#0D9488" fill-opacity="0.1" transform="rotate(315 0 0)"/>
+    
+    <!-- Center -->
+    <circle cx="0" cy="0" r="8" fill="#0D9488" fill-opacity="0.15"/>
+  </g>
+  
+  <!-- Floating leaves - scattered -->
+  <ellipse cx="150" cy="350" rx="20" ry="8" fill="url(#leafGrad)" transform="rotate(25 150 350)"/>
+  <ellipse cx="650" cy="400" rx="18" ry="7" fill="url(#leafGrad2)" transform="rotate(-20 650 400)"/>
+  <ellipse cx="100" cy="550" rx="22" ry="9" fill="url(#leafGrad)" transform="rotate(40 100 550)"/>
+  <ellipse cx="700" cy="600" rx="19" ry="8" fill="url(#leafGrad2)" transform="rotate(-35 700 600)"/>
+  
+  <!-- Small decorative dots -->
+  <circle cx="200" cy="250" r="3" fill="#0D9488" fill-opacity="0.15"/>
+  <circle cx="600" cy="300" r="2.5" fill="#10B981" fill-opacity="0.12"/>
+  <circle cx="150" cy="450" r="2" fill="#34D399" fill-opacity="0.1"/>
+  <circle cx="650" cy="500" r="3" fill="#0D9488" fill-opacity="0.13"/>
+  <circle cx="250" cy="650" r="2.5" fill="#10B981" fill-opacity="0.11"/>
+  <circle cx="550" cy="700" r="2" fill="#34D399" fill-opacity="0.09"/>
+</svg>

@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 800" fill="none">
+  <defs>
+    <linearGradient id="heroGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.08"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="heroGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.06"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0.01"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="20%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0D9488" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="80%" cy="70%" r="35%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Base gradient layers -->
+  <rect width="1920" height="800" fill="url(#heroGrad1)"/>
+  <rect width="1920" height="800" fill="url(#heroGrad2)"/>
+  
+  <!-- Soft glow orbs -->
+  <circle cx="384" cy="240" r="300" fill="url(#glow1)"/>
+  <circle cx="1536" cy="560" r="280" fill="url(#glow2)"/>
+  
+  <!-- Botanical branch - top left -->
+  <g transform="translate(80, 80) scale(0.9)">
+    <path d="M0 300 C40 270, 100 230, 150 180 C190 140, 230 90, 260 40 C275 15, 285 0, 290 0" stroke="#0D9488" stroke-width="2.5" stroke-opacity="0.25" fill="none" stroke-linecap="round"/>
+    
+    <!-- Leaves -->
+    <ellipse cx="60" cy="260" rx="40" ry="16" fill="#0D9488" fill-opacity="0.15" transform="rotate(-40 60 260)"/>
+    <ellipse cx="100" cy="220" rx="45" ry="18" fill="#10B981" fill-opacity="0.12" transform="rotate(-35 100 220)"/>
+    <ellipse cx="140" cy="180" rx="42" ry="16" fill="#0D9488" fill-opacity="0.14" transform="rotate(-30 140 180)"/>
+    <ellipse cx="180" cy="140" rx="38" ry="15" fill="#34D399" fill-opacity="0.1" transform="rotate(-25 180 140)"/>
+    <ellipse cx="220" cy="100" rx="35" ry="14" fill="#0D9488" fill-opacity="0.12" transform="rotate(-20 220 100)"/>
+    <ellipse cx="250" cy="60" rx="30" ry="12" fill="#10B981" fill-opacity="0.1" transform="rotate(-15 250 60)"/>
+    
+    <!-- Secondary small leaves -->
+    <ellipse cx="40" cy="280" rx="25" ry="10" fill="#0D9488" fill-opacity="0.1" transform="rotate(-55 40 280)"/>
+    <ellipse cx="80" cy="240" rx="28" ry="11" fill="#10B981" fill-opacity="0.08" transform="rotate(-48 80 240)"/>
+    <ellipse cx="120" cy="200" rx="26" ry="10" fill="#0D9488" fill-opacity="0.09" transform="rotate(-42 120 200)"/>
+    <ellipse cx="160" cy="160" rx="24" ry="9" fill="#34D399" fill-opacity="0.07" transform="rotate(-36 160 160)"/>
+    <ellipse cx="200" cy="120" rx="22" ry="8" fill="#0D9488" fill-opacity="0.08" transform="rotate(-30 200 120)"/>
+  </g>
+  
+  <!-- Botanical branch - bottom right (mirrored) -->
+  <g transform="translate(1840, 720) scale(-0.85, 0.85)">
+    <path d="M0 300 C40 270, 100 230, 150 180 C190 140, 230 90, 260 40 C275 15, 285 0, 290 0" stroke="#0D9488" stroke-width="2.5" stroke-opacity="0.2" fill="none" stroke-linecap="round"/>
+    
+    <ellipse cx="60" cy="260" rx="40" ry="16" fill="#0D9488" fill-opacity="0.12" transform="rotate(-40 60 260)"/>
+    <ellipse cx="100" cy="220" rx="45" ry="18" fill="#10B981" fill-opacity="0.1" transform="rotate(-35 100 220)"/>
+    <ellipse cx="140" cy="180" rx="42" ry="16" fill="#0D9488" fill-opacity="0.11" transform="rotate(-30 140 180)"/>
+    <ellipse cx="180" cy="140" rx="38" ry="15" fill="#34D399" fill-opacity="0.08" transform="rotate(-25 180 140)"/>
+    <ellipse cx="220" cy="100" rx="35" ry="14" fill="#0D9488" fill-opacity="0.1" transform="rotate(-20 220 100)"/>
+    <ellipse cx="250" cy="60" rx="30" ry="12" fill="#10B981" fill-opacity="0.08" transform="rotate(-15 250 60)"/>
+  </g>
+  
+  <!-- Floral cluster - top right -->
+  <g transform="translate(1700, 100)">
+    <!-- Main flower -->
+    <g>
+      <ellipse cx="0" cy="-35" rx="12" ry="28" fill="#0D9488" fill-opacity="0.15"/>
+      <ellipse cx="25" cy="-25" rx="12" ry="28" fill="#0D9488" fill-opacity="0.13" transform="rotate(45)"/>
+      <ellipse cx="35" cy="0" rx="12" ry="28" fill="#0D9488" fill-opacity="0.15" transform="rotate(90)"/>
+      <ellipse cx="25" cy="25" rx="12" ry="28" fill="#0D9488" fill-opacity="0.13" transform="rotate(135)"/>
+      <ellipse cx="0" cy="35" rx="12" ry="28" fill="#0D9488" fill-opacity="0.15" transform="rotate(180)"/>
+      <ellipse cx="-25" cy="25" rx="12" ry="28" fill="#0D9488" fill-opacity="0.13" transform="rotate(225)"/>
+      <ellipse cx="-35" cy="0" rx="12" ry="28" fill="#0D9488" fill-opacity="0.15" transform="rotate(270)"/>
+      <ellipse cx="-25" cy="-25" rx="12" ry="28" fill="#0D9488" fill-opacity="0.13" transform="rotate(315)"/>
+      <circle cx="0" cy="0" r="12" fill="#0D9488" fill-opacity="0.2"/>
+      <circle cx="0" cy="0" r="6" fill="#0D9488" fill-opacity="0.25"/>
+    </g>
+    
+    <!-- Small buds -->
+    <circle cx="-60" cy="30" r="8" fill="#10B981" fill-opacity="0.15"/>
+    <circle cx="-50" cy="50" r="6" fill="#34D399" fill-opacity="0.12"/>
+    <circle cx="-70" cy="55" r="5" fill="#10B981" fill-opacity="0.1"/>
+    
+    <!-- Leaves -->
+    <ellipse cx="-40" cy="60" rx="20" ry="8" fill="#0D9488" fill-opacity="0.12" transform="rotate(-30 -40 60)"/>
+    <ellipse cx="-80" cy="40" rx="18" ry="7" fill="#10B981" fill-opacity="0.1" transform="rotate(-50 -80 40)"/>
+  </g>
+  
+  <!-- Floating decorative elements -->
+  <g fill="#0D9488">
+    <circle cx="200" cy="400" r="3" fill-opacity="0.15"/>
+    <circle cx="400" cy="500" r="2.5" fill-opacity="0.12"/>
+    <circle cx="600" cy="350" r="2" fill-opacity="0.1"/>
+    <circle cx="1300" cy="450" r="3" fill-opacity="0.15"/>
+    <circle cx="1500" cy="350" r="2.5" fill-opacity="0.12"/>
+    <circle cx="1700" cy="500" r="2" fill-opacity="0.1"/>
+  </g>
+  
+  <!-- Star sparkles -->
+  <g fill="#0D9488" fill-opacity="0.18">
+    <path d="M300 300 L303 308 L311 308 L305 313 L307 321 L300 316 L293 321 L295 313 L289 308 L297 308 Z"/>
+    <path d="M1600 300 L1603 308 L1611 308 L1605 313 L1607 321 L1600 316 L1593 321 L1595 313 L1589 308 L1597 308 Z"/>
+    <path d="M500 600 L502 606 L508 606 L503 610 L505 616 L500 612 L495 616 L497 610 L492 606 L498 606 Z"/>
+    <path d="M1400 600 L1402 606 L1408 606 L1403 610 L1405 616 L1400 612 L1395 616 L1397 610 L1392 606 L1398 606 Z"/>
+  </g>
+</svg>

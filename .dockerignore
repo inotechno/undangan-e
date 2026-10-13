@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env
+.env.local
+*.log
+Dockerfile
+docker-compose.yml
+Caddyfile
+docs
+brand/node_modules
+brand/png
+e2e

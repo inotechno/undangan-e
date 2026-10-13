@@ -1,0 +1,93 @@
+name: undangane
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: undangane
+      POSTGRES_PASSWORD: undangane
+      POSTGRES_DB: undangane
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U undangane -d undangane"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      INVITE_URL: ${INVITE_URL:-http://localhost:3000}
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET wajib diisi di .env}
+      DATABASE_URL: postgres://undangane:undangane@postgres:5432/undangane
+      REDIS_URL: redis://redis:6379
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET: ${R2_BUCKET:-undangane}
+      DUITKU_MERCHANT_CODE: ${DUITKU_MERCHANT_CODE:-}
+      DUITKU_API_KEY: ${DUITKU_API_KEY:-}
+      DUITKU_QRIS_CODE: ${DUITKU_QRIS_CODE:-DQ}
+      DUITKU_SANDBOX: ${DUITKU_SANDBOX:-true}
+      DUITKU_CALLBACK_URL: ${DUITKU_CALLBACK_URL:-}
+      DUITKU_MIN_AMOUNT_IDR: ${DUITKU_MIN_AMOUNT_IDR:-10000}
+      QR_HMAC_SECRET: ${QR_HMAC_SECRET:-}
+      PAYOUT_ENCRYPTION_KEY: ${PAYOUT_ENCRYPTION_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none">
+  <defs>
+    <radialGradient id="rg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(300 300) scale(300)">
+      <stop stop-color="#0D9488" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#0D9488" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- concentric rings -->
+  <circle cx="300" cy="300" r="280" stroke="#0D9488" stroke-opacity="0.06" stroke-width="1" fill="none"/>
+  <circle cx="300" cy="300" r="220" stroke="#0D9488" stroke-opacity="0.05" stroke-width="1" fill="none"/>
+  <circle cx="300" cy="300" r="160" stroke="#0D9488" stroke-opacity="0.04" stroke-width="1" fill="none"/>
+  <circle cx="300" cy="300" r="100" stroke="#0D9488" stroke-opacity="0.03" stroke-width="1" fill="none"/>
+  <!-- petals -->
+  <path d="M300 80 C320 140 320 200 300 260 C280 200 280 140 300 80Z" fill="#0D9488" fill-opacity="0.04"/>
+  <path d="M300 520 C320 460 320 400 300 340 C280 400 280 460 300 520Z" fill="#0D9488" fill-opacity="0.04"/>
+  <path d="M80 300 C140 280 200 280 260 300 C200 320 140 320 80 300Z" fill="#0D9488" fill-opacity="0.04"/>
+  <path d="M520 300 C460 280 400 280 340 300 C400 320 460 320 520 300Z" fill="#0D9488" fill-opacity="0.04"/>
+  <rect width="600" height="600" fill="url(#rg)"/>
+</svg>

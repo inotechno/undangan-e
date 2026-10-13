@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791738975326,
+      "tag": "0000_curved_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791814268629,
+      "tag": "0001_aspiring_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791867417591,
+      "tag": "0002_far_deathstrike",
+      "breakpoints": true
+    }
+  ]
+}

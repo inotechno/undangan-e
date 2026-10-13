@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" fill="none">
+  <!-- scattered elegant confetti / sparkle pattern -->
+  <circle cx="40" cy="60" r="2" fill="#0D9488" fill-opacity="0.1"/>
+  <circle cx="120" cy="30" r="1.5" fill="#373C3F" fill-opacity="0.06"/>
+  <circle cx="200" cy="80" r="2" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="280" cy="40" r="1.5" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="360" cy="70" r="2" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="80" cy="140" r="1.5" fill="#0D9488" fill-opacity="0.07"/>
+  <circle cx="160" cy="180" r="2" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="240" cy="120" r="1.5" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="320" cy="160" r="2" fill="#373C3F" fill-opacity="0.06"/>
+  <circle cx="60" cy="220" r="2" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="140" cy="260" r="1.5" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="220" cy="200" r="2" fill="#0D9488" fill-opacity="0.07"/>
+  <circle cx="300" cy="240" r="1.5" fill="#373C3F" fill-opacity="0.06"/>
+  <circle cx="380" cy="200" r="2" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="40" cy="300" r="1.5" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="120" cy="340" r="2" fill="#0D9488" fill-opacity="0.07"/>
+  <circle cx="200" cy="300" r="1.5" fill="#373C3F" fill-opacity="0.06"/>
+  <circle cx="280" cy="360" r="2" fill="#0D9488" fill-opacity="0.08"/>
+  <circle cx="360" cy="320" r="1.5" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="80" cy="380" r="2" fill="#0D9488" fill-opacity="0.06"/>
+  <circle cx="240" cy="380" r="1.5" fill="#373C3F" fill-opacity="0.05"/>
+  <circle cx="320" cy="80" r="1" fill="#0D9488" fill-opacity="0.1"/>
+  <circle cx="180" cy="100" r="1" fill="#373C3F" fill-opacity="0.06"/>
+  <!-- tiny sparkles -->
+  <path d="M100 100 L101 103 L104 104 L101 105 L100 108 L99 105 L96 104 L99 103 Z" fill="#0D9488" fill-opacity="0.1"/>
+  <path d="M300 280 L301 282 L303 283 L301 284 L300 286 L299 284 L297 283 L299 282 Z" fill="#0D9488" fill-opacity="0.08"/>
+  <path d="M50 350 L51 352 L53 353 L51 354 L50 356 L49 354 L47 353 L49 352 Z" fill="#373C3F" fill-opacity="0.05"/>
+</svg>
