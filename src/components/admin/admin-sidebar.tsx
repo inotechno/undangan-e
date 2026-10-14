@@ -36,7 +36,7 @@ const PLATFORM: NavItem[] = [
 
 const SYSTEM: NavItem[] = [
   { href: "/admin/audit", label: "Audit Log", icon: BookOpen },
-  { href: "/admin/settings", label: "Pengaturan Platform", icon: Settings, soon: true },
+  { href: "/admin/settings", label: "Pengaturan Platform", icon: Settings },
 ];
 
 function initials(name: string) {
