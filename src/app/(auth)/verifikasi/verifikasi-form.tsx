@@ -11,8 +11,9 @@ type State = "loading" | "ok" | "fail" | "idle";
 export function VerifikasiForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
+  const emailParam = searchParams.get("email") ?? "";
   const [state, setState] = useState<State>(token ? "loading" : "idle");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailParam);
   const [resendBusy, setResendBusy] = useState(false);
   const [resendMsg, setResendMsg] = useState<string | null>(null);
   const verifiedRef = useRef(false);

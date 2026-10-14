@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authClient, useSession } from "@/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,10 +15,12 @@ import {
   Eye,
   EyeOff,
   Info,
+  Loader2,
   Lock,
   Mail,
   MessageCircle,
   Phone,
+  RefreshCw,
   ShieldCheck,
   User,
 } from "lucide-react";
@@ -32,11 +34,12 @@ const PHONE_RE = /^[+0-9()\-\s]{8,20}$/;
 
 const ERROR_MESSAGES: Record<string, string> = {
   "Invalid email or password": "Email atau password salah.",
-  "User already exists": "Email sudah terdaftar. Silakan masuk.",
+  "User already exists": "Email sudah terdaftar.",
   "Invalid email": "Format email belum valid.",
   "Password must be at least 8 characters": "Password minimal 8 karakter.",
   "Too many requests. Please try again later.":
     "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.",
+  "Email not verified": "Email Anda belum diverifikasi.",
 };
 
 function humanize(message?: string | null) {
@@ -148,14 +151,15 @@ const FIT_SHORT = "[@media(max-height:800px)]:hidden";
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const isRegister = mode === "daftar";
 
   const identityRef = useRef<HTMLInputElement>(null);
   const [method, setMethod] = useState<"email" | "phone">("email");
-  const [identity, setIdentity] = useState("");
+  const [identity, setIdentity] = useState(searchParams.get("email") ?? "");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -165,6 +169,31 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const [terms, setTerms] = useState(false);
   const [alert, setAlert] = useState<AlertState>(null);
   const [loading, setLoading] = useState(false);
+  // State setelah daftar sukses — tampilkan panel info + tombol kirim ulang.
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendMsg, setResendMsg] = useState<string | null>(null);
+
+  // Alert dari redirect (mis. login gagal karena email belum verified).
+  useEffect(() => {
+    const a = searchParams.get("alert");
+    if (!a) return;
+    // Defer agar tidak setState sinkron di effect body (lint rule).
+    const t = setTimeout(() => {
+      if (a === "notverified") {
+        setAlert({
+          tone: "error",
+          message: "Email Anda belum diverifikasi. Kami mengirim tautan verifikasi — cek email Anda, atau kirim ulang di bawah.",
+        });
+      } else if (a === "exists") {
+        setAlert({
+          tone: "info",
+          message: "Email ini sudah terdaftar tetapi belum diverifikasi. Silakan cek email untuk verifikasi, atau kirim ulang.",
+        });
+      }
+    }, 0);
+    return () => clearTimeout(t);
+  }, [searchParams]);
 
   useEffect(() => {
     // Sudah masuk (mis. buka /masuk lagi) → ke halaman sesuai role.
@@ -227,6 +256,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         rememberMe: remember,
       });
       if (result.error) {
+        // Email terdaftar tapi belum verified → redirect ke /verifikasi dengan email terisi.
+        if (result.error.code === "EMAIL_NOT_VERIFIED" || result.error.message === "Email not verified") {
+          router.push(`/masuk?email=${encodeURIComponent(value)}&alert=notverified`);
+          router.refresh();
+          return;
+        }
         setAlert({ tone: "error", message: humanize(result.error.message) });
         return;
       }
@@ -289,24 +324,44 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         callbackURL: "/verifikasi",
       });
       if (result.error) {
+        // Email sudah terdaftar tapi belum verified → redirect ke /verifikasi.
+        if (result.error.message === "User already exists") {
+          router.push(`/daftar?email=${encodeURIComponent(email.trim())}&alert=exists`);
+          router.refresh();
+          return;
+        }
         setAlert({ tone: "error", message: humanize(result.error.message) });
         return;
       }
-      setAlert({
-        tone: "success",
-        message:
-          "Akun berhasil dibuat! Jika verifikasi email diaktifkan, tautan sudah dikirim ke email Anda. Jika tidak diterima, Anda bisa kirim ulang di halaman berikutnya.",
-      });
-      // Tunggu sebentar agar alert terlihat, lalu ke halaman verifikasi
-      // (di sana ada form kirim ulang jika email tidak masuk).
-      setTimeout(() => {
-        router.push("/verifikasi");
-        router.refresh();
-      }, 1200);
+      // Sukses — tampilkan panel info + tombol kirim ulang (tanpa form penuh).
+      setRegisteredEmail(email.trim());
+      setAlert(null);
     } catch {
       setAlert({ tone: "error", message: "Terjadi kesalahan. Periksa koneksi internetmu." });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResendVerification(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!registeredEmail) return;
+    setResendBusy(true);
+    setResendMsg(null);
+    try {
+      const { error } = await authClient.sendVerificationEmail({
+        email: registeredEmail,
+        callbackURL: "/verifikasi",
+      });
+      if (error) {
+        setResendMsg("Gagal mengirim ulang. Coba lagi beberapa saat.");
+        return;
+      }
+      setResendMsg("Email verifikasi dikirim ulang. Cek kotak masuk (dan folder spam).");
+    } catch {
+      setResendMsg("Terjadi kesalahan. Coba lagi.");
+    } finally {
+      setResendBusy(false);
     }
   }
 
@@ -356,7 +411,52 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
       <AlertBox alert={alert} />
 
-      {isRegister ? (
+      {/* Panel sukses setelah daftar — tanpa form, hanya info + kirim ulang. */}
+      {isRegister && registeredEmail ? (
+        <div className="rounded-[14px] border border-[#bce8ce] bg-[#eaf8f1] p-6 text-center">
+          <CheckCircle2 className="mx-auto size-12 text-teal" aria-hidden />
+          <h2 className="mt-4 text-[22px] font-bold tracking-[-0.03em] text-charcoal">
+            Akun berhasil dibuat!
+          </h2>
+          <p className="mt-2 text-[13px] leading-relaxed text-muted-warm">
+            Email verifikasi sudah dikirim ke{" "}
+            <strong className="text-charcoal">{registeredEmail}</strong>.
+            <br />
+            Cek kotak masuk (dan folder spam) lalu klik tautan verifikasi.
+          </p>
+
+          {resendMsg ? (
+            <p
+              className="mt-4 rounded-[10px] border border-[#bde3de] bg-white px-3 py-2.5 text-xs text-[#075e59]"
+              role="status"
+            >
+              {resendMsg}
+            </p>
+          ) : null}
+
+          <div className="mt-5 flex flex-col items-center gap-3">
+            <button
+              type="button"
+              onClick={() => void handleResendVerification()}
+              disabled={resendBusy}
+              className="inline-flex h-11 items-center gap-2 rounded-[11px] bg-teal px-5 text-[13px] font-extrabold text-white shadow-[0_8px_16px_rgba(13,148,136,0.14)] hover:bg-teal-hover disabled:opacity-50"
+            >
+              {resendBusy ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <RefreshCw className="size-4" aria-hidden />
+              )}
+              Kirim ulang email verifikasi
+            </button>
+            <Link
+              href="/masuk"
+              className="text-xs font-bold text-[#087f76] hover:underline"
+            >
+              Sudah verifikasi? Masuk sekarang →
+            </Link>
+          </div>
+        </div>
+      ) : isRegister ? (
         <form onSubmit={handleRegister} noValidate className="grid gap-x-3 gap-y-1 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <FieldHead htmlFor="name" label="Nama lengkap" />

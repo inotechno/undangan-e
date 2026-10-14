@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AuthForm } from "@/components/site/auth-form";
 import { AuthShell } from "@/components/site/auth-shell";
 
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthShell mode="masuk">
-      <AuthForm mode="masuk" />
+      <Suspense fallback={null}>
+        <AuthForm mode="masuk" />
+      </Suspense>
     </AuthShell>
   );
 }
