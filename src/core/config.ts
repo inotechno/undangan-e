@@ -31,6 +31,7 @@ const EnvSchema = z.object({
   QR_HMAC_SECRET: z.string().optional(),
   PAYOUT_ENCRYPTION_KEY: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  ENCRYPTION_KEY: z.string().optional(),
 });
 
 const parsed = EnvSchema.safeParse(process.env);
