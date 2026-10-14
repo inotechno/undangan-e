@@ -294,10 +294,15 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       }
       setAlert({
         tone: "success",
-        message: "Akun berhasil dibuat! Jika diminta, cek email untuk verifikasi — lalu masuk.",
+        message:
+          "Akun berhasil dibuat! Jika verifikasi email diaktifkan, tautan sudah dikirim ke email Anda. Jika tidak diterima, Anda bisa kirim ulang di halaman berikutnya.",
       });
-      router.push("/dashboard");
-      router.refresh();
+      // Tunggu sebentar agar alert terlihat, lalu ke halaman verifikasi
+      // (di sana ada form kirim ulang jika email tidak masuk).
+      setTimeout(() => {
+        router.push("/verifikasi");
+        router.refresh();
+      }, 1200);
     } catch {
       setAlert({ tone: "error", message: "Terjadi kesalahan. Periksa koneksi internetmu." });
     } finally {

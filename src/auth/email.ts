@@ -63,10 +63,14 @@ async function sendViaSmtp(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!host) return { ok: false, error: "SMTP_HOST belum dikonfigurasi" };
 
+  // Auto-detect: port 465 → SSL langsung; port lain (587, 25, dll) → STARTTLS.
+  // Mengabaikan flag `secure` dari settings agar tidak salah handshake.
+  const useSecure = port === 465;
+
   const transport = nodemailer.createTransport({
     host,
     port,
-    secure, // true = 465 (SSL/TLS), false = 587 (STARTTLS)
+    secure: useSecure,
     auth: user && pass ? { user, pass } : undefined,
     connectionTimeout: 10_000,
   });
