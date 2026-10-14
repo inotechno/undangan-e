@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/auth/guard";
+import { invalidateAuthCache } from "@/auth/auth";
 import { writeAudit } from "@/modules/audit/log";
 import { invalidateDuitkuConfigCache } from "@/modules/payments/duitku";
 import { getPlatformSettings, setPlatformSettings, platformSettingsSchema } from "@/modules/settings/server";
@@ -14,6 +15,10 @@ export async function GET() {
     ...settings,
     duitkuApiKey: settings.duitkuApiKey ? "••••" + settings.duitkuApiKey.slice(-4) : "",
     duitkuApiKeySet: Boolean(settings.duitkuApiKey),
+    googleClientSecret: settings.googleClientSecret ? "••••" + settings.googleClientSecret.slice(-4) : "",
+    googleClientSecretSet: Boolean(settings.googleClientSecret),
+    resendApiKey: settings.resendApiKey ? "••••" + settings.resendApiKey.slice(-4) : "",
+    resendApiKeySet: Boolean(settings.resendApiKey),
   });
 }
 
@@ -36,9 +41,16 @@ export async function PATCH(req: Request) {
   if (data.duitkuApiKey.startsWith("••••")) {
     data.duitkuApiKey = current.duitkuApiKey;
   }
+  if (data.googleClientSecret.startsWith("••••")) {
+    data.googleClientSecret = current.googleClientSecret;
+  }
+  if (data.resendApiKey.startsWith("••••")) {
+    data.resendApiKey = current.resendApiKey;
+  }
 
   await setPlatformSettings(data, auth.session.user.id);
   invalidateDuitkuConfigCache();
+  invalidateAuthCache();
   await writeAudit({
     actorId: auth.session.user.id,
     action: "settings.platform.change",
@@ -49,6 +61,8 @@ export async function PATCH(req: Request) {
       duitkuForceDummy: data.duitkuForceDummy,
       allowSimulation: data.allowSimulation,
       merchantChanged: data.duitkuMerchantCode !== current.duitkuMerchantCode,
+      googleChanged: data.googleClientId !== current.googleClientId,
+      requireEmailVerification: data.requireEmailVerification,
     },
   });
 

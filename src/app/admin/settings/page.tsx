@@ -48,6 +48,14 @@ export default async function AdminSettingsPage() {
             allowSimulation: platform.allowSimulation,
             resellerUpgradePriceIdr: platform.resellerUpgradePriceIdr,
             resellerUpgradeEnabled: platform.resellerUpgradeEnabled,
+            googleClientId: platform.googleClientId,
+            googleClientSecret: platform.googleClientSecret ? "••••" + platform.googleClientSecret.slice(-4) : "",
+            googleClientSecretSet: Boolean(platform.googleClientSecret),
+            resendApiKey: platform.resendApiKey ? "••••" + platform.resendApiKey.slice(-4) : "",
+            resendApiKeySet: Boolean(platform.resendApiKey),
+            emailFromAddress: platform.emailFromAddress,
+            emailFromName: platform.emailFromName,
+            requireEmailVerification: platform.requireEmailVerification,
           }}
         />
       </div>

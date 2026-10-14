@@ -286,12 +286,16 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         email: email.trim(),
         password,
         ...(phone.trim() ? { phone: phone.trim() } : {}),
+        callbackURL: "/verifikasi",
       });
       if (result.error) {
         setAlert({ tone: "error", message: humanize(result.error.message) });
         return;
       }
-      setAlert({ tone: "success", message: "Akun berhasil dibuat! Mengalihkan ke dashboard..." });
+      setAlert({
+        tone: "success",
+        message: "Akun berhasil dibuat! Jika diminta, cek email untuk verifikasi — lalu masuk.",
+      });
       router.push("/dashboard");
       router.refresh();
     } catch {
@@ -555,19 +559,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
                 htmlFor="password"
                 label="Password"
                 aside={
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setAlert({
-                        tone: "info",
-                        message:
-                          "Reset password sedang disiapkan. Sementara, hubungi kami lewat halaman Panduan untuk bantuan.",
-                      })
-                    }
+                  <Link
+                    href="/lupa-password"
                     className="text-[11px] font-bold text-[#087f76] hover:underline"
                   >
                     Lupa password?
-                  </button>
+                  </Link>
                 }
               />
               <div className="relative">

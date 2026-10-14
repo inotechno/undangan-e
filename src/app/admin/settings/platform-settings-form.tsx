@@ -18,6 +18,14 @@ type Props = {
     allowSimulation: boolean;
     resellerUpgradePriceIdr: number;
     resellerUpgradeEnabled: boolean;
+    googleClientId: string;
+    googleClientSecret: string;
+    googleClientSecretSet: boolean;
+    resendApiKey: string;
+    resendApiKeySet: boolean;
+    emailFromAddress: string;
+    emailFromName: string;
+    requireEmailVerification: boolean;
   };
 };
 
@@ -62,6 +70,12 @@ export function PlatformSettingsForm({ initial }: Props) {
   const [allowSim, setAllowSim] = useState(initial.allowSimulation);
   const [upgradePrice, setUpgradePrice] = useState(String(initial.resellerUpgradePriceIdr));
   const [upgradeEnabled, setUpgradeEnabled] = useState(initial.resellerUpgradeEnabled);
+  const [googleClientId, setGoogleClientId] = useState(initial.googleClientId);
+  const [googleClientSecret, setGoogleClientSecret] = useState(initial.googleClientSecret);
+  const [resendApiKey, setResendApiKey] = useState(initial.resendApiKey);
+  const [emailFromAddress, setEmailFromAddress] = useState(initial.emailFromAddress);
+  const [emailFromName, setEmailFromName] = useState(initial.emailFromName);
+  const [requireEmailVerif, setRequireEmailVerif] = useState(initial.requireEmailVerification);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
 
@@ -85,6 +99,12 @@ export function PlatformSettingsForm({ initial }: Props) {
           allowSimulation: allowSim,
           resellerUpgradePriceIdr: Number(upgradePrice),
           resellerUpgradeEnabled: upgradeEnabled,
+          googleClientId: googleClientId.trim(),
+          googleClientSecret: googleClientSecret.trim(),
+          resendApiKey: resendApiKey.trim(),
+          emailFromAddress: emailFromAddress.trim(),
+          emailFromName: emailFromName.trim(),
+          requireEmailVerification: requireEmailVerif,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -196,6 +216,73 @@ export function PlatformSettingsForm({ initial }: Props) {
             onChange={setUpgradeEnabled}
           />
         </div>
+      </div>
+
+      <h3 className="mt-5 text-xs font-bold tracking-wide text-[#425968] uppercase">Login Google (OAuth)</h3>
+      <p className="mt-1 text-[11px] leading-relaxed text-[#687b88]">
+        Isi Client ID &amp; Secret dari Google Cloud Console (OAuth 2.0 Web).
+        Redirect URI: <code className="rounded bg-[#f1f5f7] px-1">{"{APP_URL}"}/api/auth/callback/google</code>
+      </p>
+      <div className="mt-2 grid gap-3 sm:grid-cols-2">
+        <label>
+          <span className={labelCls}>Google Client ID</span>
+          <input
+            value={googleClientId}
+            onChange={(e) => setGoogleClientId(e.target.value)}
+            placeholder="….apps.googleusercontent.com"
+            className={inputCls}
+          />
+        </label>
+        <label>
+          <span className={labelCls}>Google Client Secret {initial.googleClientSecretSet ? "(sudah diisi — kosongkan untuk hapus)" : ""}</span>
+          <input
+            type="password"
+            value={googleClientSecret}
+            onChange={(e) => setGoogleClientSecret(e.target.value)}
+            placeholder={initial.googleClientSecretSet ? "••••" : "GOCSPX-…"}
+            className={inputCls}
+          />
+        </label>
+      </div>
+
+      <h3 className="mt-5 text-xs font-bold tracking-wide text-[#425968] uppercase">Email (Resend)</h3>
+      <p className="mt-1 text-[11px] leading-relaxed text-[#687b88]">
+        Untuk verifikasi email &amp; reset password. Kosongkan API key untuk fallback <code>.env</code> RESEND_API_KEY.
+      </p>
+      <div className="mt-2 grid gap-3 sm:grid-cols-3">
+        <label>
+          <span className={labelCls}>Resend API Key {initial.resendApiKeySet ? "(sudah diisi — kosongkan untuk hapus)" : ""}</span>
+          <input
+            type="password"
+            value={resendApiKey}
+            onChange={(e) => setResendApiKey(e.target.value)}
+            placeholder={initial.resendApiKeySet ? "••••" : "re_…"}
+            className={inputCls}
+          />
+        </label>
+        <label>
+          <span className={labelCls}>Nama pengirim</span>
+          <input value={emailFromName} onChange={(e) => setEmailFromName(e.target.value)} placeholder="UndanganE" className={inputCls} />
+        </label>
+        <label>
+          <span className={labelCls}>Email pengirim</span>
+          <input
+            type="email"
+            value={emailFromAddress}
+            onChange={(e) => setEmailFromAddress(e.target.value)}
+            placeholder="noreply@domain.com"
+            className={inputCls}
+          />
+        </label>
+      </div>
+      <div className="mt-3">
+        <ToggleRow
+          id="require-email-verif"
+          label="Wajibkan verifikasi email"
+          hint="Pengguna harus mengklik tautan verifikasi di email sebelum bisa masuk."
+          checked={requireEmailVerif}
+          onChange={setRequireEmailVerif}
+        />
       </div>
 
       <button

@@ -35,6 +35,12 @@ export const PLATFORM_SETTING_KEYS = [
   "payment.allow_simulation",
   "reseller.upgrade_price_idr",
   "reseller.upgrade_enabled",
+  "google.client_id",
+  "google.client_secret",
+  "email.resend_api_key",
+  "email.from_address",
+  "email.from_name",
+  "auth.require_email_verification",
 ] as const;
 
 export type PlatformSettingKey = (typeof PLATFORM_SETTING_KEYS)[number];
@@ -51,6 +57,12 @@ export interface PlatformSettings {
   allowSimulation: boolean;
   resellerUpgradePriceIdr: number;
   resellerUpgradeEnabled: boolean;
+  googleClientId: string;
+  googleClientSecret: string;
+  resendApiKey: string;
+  emailFromAddress: string;
+  emailFromName: string;
+  requireEmailVerification: boolean;
 }
 
 export const platformSettingsSchema = z.object({
@@ -65,6 +77,12 @@ export const platformSettingsSchema = z.object({
   allowSimulation: z.boolean(),
   resellerUpgradePriceIdr: z.coerce.number().int().min(0).max(100_000_000),
   resellerUpgradeEnabled: z.boolean(),
+  googleClientId: z.string().trim().max(200).or(z.literal("")),
+  googleClientSecret: z.string().trim().max(200).or(z.literal("")),
+  resendApiKey: z.string().trim().max(200).or(z.literal("")),
+  emailFromAddress: z.string().trim().email().or(z.literal("")),
+  emailFromName: z.string().trim().max(80).or(z.literal("")),
+  requireEmailVerification: z.boolean(),
 });
 
 export async function getPlatformSettings(): Promise<PlatformSettings> {
@@ -91,6 +109,12 @@ export async function getPlatformSettings(): Promise<PlatformSettings> {
     allowSimulation: b("payment.allow_simulation", false),
     resellerUpgradePriceIdr: n("reseller.upgrade_price_idr", 50000),
     resellerUpgradeEnabled: b("reseller.upgrade_enabled", true),
+    googleClientId: s("google.client_id"),
+    googleClientSecret: s("google.client_secret"),
+    resendApiKey: s("email.resend_api_key"),
+    emailFromAddress: s("email.from_address"),
+    emailFromName: s("email.from_name"),
+    requireEmailVerification: b("auth.require_email_verification", false),
   };
 }
 
@@ -107,6 +131,12 @@ export async function setPlatformSettings(input: PlatformSettings, updatedBy: st
     ["payment.allow_simulation", input.allowSimulation],
     ["reseller.upgrade_price_idr", input.resellerUpgradePriceIdr],
     ["reseller.upgrade_enabled", input.resellerUpgradeEnabled],
+    ["google.client_id", input.googleClientId],
+    ["google.client_secret", input.googleClientSecret],
+    ["email.resend_api_key", input.resendApiKey],
+    ["email.from_address", input.emailFromAddress],
+    ["email.from_name", input.emailFromName],
+    ["auth.require_email_verification", input.requireEmailVerification],
   ];
   await db.transaction(async (tx) => {
     for (const [key, value] of entries) {

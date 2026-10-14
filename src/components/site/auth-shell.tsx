@@ -3,7 +3,7 @@ import { Check, ShieldCheck, Sparkles } from "lucide-react";
 import { UndanganELogo } from "@/components/brand/undangan-e-logo";
 import { cn } from "@/lib/utils";
 
-type AuthMode = "masuk" | "daftar";
+type AuthMode = "masuk" | "daftar" | "lupa" | "reset" | "verifikasi";
 
 const BENEFITS = [
   "Ratusan template profesional",
@@ -34,7 +34,7 @@ export function AuthShell({
   mode: AuthMode;
   children: React.ReactNode;
 }) {
-  const isLogin = mode === "masuk";
+  const isLogin = mode !== "daftar";
 
   return (
     <div className="grid h-[100dvh] overflow-hidden lg:grid-cols-[minmax(0,1.02fr)_minmax(440px,0.98fr)]">
