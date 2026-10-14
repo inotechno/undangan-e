@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { env } from "@/core/config";
+import { getPlatformSettings } from "@/modules/settings/server";
 
 export type InvoiceResult = {
   reference: string;
@@ -10,64 +11,102 @@ export type InvoiceResult = {
   raw: Record<string, unknown>;
 };
 
-/**
- * Mode dummy aktif saat kredensial Duitku belum diisi di .env,
- * atau saat DUITKU_FORCE_DUMMY=true (runtime — untuk pengujian lokal tanpa
- * menyentuh kredensial sandbox di .env).
- */
-export function isDummyPayment(): boolean {
-  return (
+/** Runtime Duitku config: settings DB (admin) menimpa env, dengan fallback env. */
+export interface DuitkuRuntimeConfig {
+  merchantCode: string;
+  apiKey: string;
+  qrisCode: string;
+  sandbox: boolean;
+  forceDummy: boolean;
+  allowSimulation: boolean;
+  callbackUrl: string;
+  appUrl: string;
+}
+
+let cache: { data: DuitkuRuntimeConfig; at: number } | null = null;
+const TTL_MS = 30_000;
+
+export async function getDuitkuConfig(): Promise<DuitkuRuntimeConfig> {
+  if (cache && Date.now() - cache.at < TTL_MS) return cache.data;
+  let s: Awaited<ReturnType<typeof getPlatformSettings>> | null = null;
+  try {
+    s = await getPlatformSettings();
+  } catch {
+    s = null;
+  }
+  const merchantCode = s?.duitkuMerchantCode || env.DUITKU_MERCHANT_CODE || "";
+  const apiKey = s?.duitkuApiKey || env.DUITKU_API_KEY || "";
+  const forceDummy =
+    s?.duitkuForceDummy === true ||
     process.env.DUITKU_FORCE_DUMMY === "true" ||
-    !env.DUITKU_MERCHANT_CODE ||
-    !env.DUITKU_API_KEY
-  );
+    !merchantCode ||
+    !apiKey;
+  const cfg: DuitkuRuntimeConfig = {
+    merchantCode: forceDummy ? "DUMMY" : merchantCode,
+    apiKey: forceDummy ? "dummy-api-key" : apiKey,
+    qrisCode: (s?.duitkuQrisCode || process.env.DUITKU_QRIS_CODE || "").trim().toUpperCase(),
+    sandbox: s?.duitkuSandbox ?? env.DUITKU_SANDBOX,
+    forceDummy,
+    allowSimulation: s?.allowSimulation === true || process.env.ALLOW_PAYMENT_SIMULATION === "true",
+    callbackUrl: env.DUITKU_CALLBACK_URL || `${env.APP_URL}/api/webhooks/payment/duitku`,
+    appUrl: env.APP_URL,
+  };
+  cache = { data: cfg, at: Date.now() };
+  return cfg;
+}
+
+/** Paksa refresh cache (dipanggil setelah admin mengubah pengaturan). */
+export function invalidateDuitkuConfigCache(): void {
+  cache = null;
+}
+
+/**
+ * Mode dummy aktif saat kredensial Duitku belum diisi (env maupun settings),
+ * atau saat force_dummy diaktifkan admin / DUITKU_FORCE_DUMMY=true.
+ */
+export async function isDummyPayment(): Promise<boolean> {
+  return (await getDuitkuConfig()).forceDummy;
 }
 
 /**
  * Tombol "Tandai Lunas (Simulasi)" hanya untuk pengembangan:
- * mode dummy, atau env ALLOW_PAYMENT_SIMULATION=true (mis. sandbox + demo lokal).
+ * mode dummy, atau allow_simulation diaktifkan admin / ALLOW_PAYMENT_SIMULATION=true.
  */
-export function isPaymentSimulationEnabled(): boolean {
-  return isDummyPayment() || process.env.ALLOW_PAYMENT_SIMULATION === "true";
+export async function isPaymentSimulationEnabled(): Promise<boolean> {
+  const cfg = await getDuitkuConfig();
+  return cfg.forceDummy || cfg.allowSimulation;
 }
 
-function apiKey(): string {
-  return isDummyPayment() ? "dummy-api-key" : env.DUITKU_API_KEY!;
-}
-
-function merchantCode(): string {
-  return isDummyPayment() ? "DUMMY" : env.DUITKU_MERCHANT_CODE!;
-}
-
-function hmacHex(payload: string): string {
-  return createHmac("sha256", apiKey()).update(payload).digest("hex");
+function hmacHex(apiKey: string, payload: string): string {
+  return createHmac("sha256", apiKey).update(payload).digest("hex");
 }
 
 /** Signature inquiry: HMAC_SHA256(merchantCode + merchantOrderId + paymentAmount, apiKey). */
-export function inquirySignature(orderId: string, amountIdr: number): string {
-  return hmacHex(merchantCode() + orderId + String(amountIdr));
+export async function inquirySignature(orderId: string, amountIdr: number): Promise<string> {
+  const cfg = await getDuitkuConfig();
+  return hmacHex(cfg.apiKey, cfg.merchantCode + orderId + String(amountIdr));
 }
 
 /** Signature callback: HMAC_SHA256(merchantCode + amount + merchantOrderId, apiKey). */
-export function callbackSignature(amountIdr: number, orderId: string): string {
-  return hmacHex(merchantCode() + String(amountIdr) + orderId);
+export async function callbackSignature(amountIdr: number, orderId: string): Promise<string> {
+  const cfg = await getDuitkuConfig();
+  return hmacHex(cfg.apiKey, cfg.merchantCode + String(amountIdr) + orderId);
 }
-
-function baseUrl(): string {
-  return env.DUITKU_SANDBOX ? "https://sandbox.duitku.com" : "https://passport.duitku.com";
-}
-
-const INVOICE_EXPIRY_MINUTES = 60;
 
 /**
  * Urutan kanal QRIS: NOBU (NQ) sebagai kanal utama, ShopeePay (SP) sebagai
  * fallback bila NQ bermasalah (mis. "Payment channel not available").
- * `DUITKU_QRIS_CODE` (jika diisi) menempati urutan pertama.
+ * `duitkuQrisCode` (settings admin / DUITKU_QRIS_CODE) menempati urutan pertama.
  */
-function qrisChannels(): string[] {
-  const configured = (process.env.DUITKU_QRIS_CODE ?? "").trim().toUpperCase();
-  return [...new Set([configured || "NQ", "NQ", "SP"])];
+function qrisChannels(cfg: DuitkuRuntimeConfig): string[] {
+  return [...new Set([cfg.qrisCode || "NQ", "NQ", "SP"])];
 }
+
+function baseUrl(cfg: DuitkuRuntimeConfig): string {
+  return cfg.sandbox ? "https://sandbox.duitku.com" : "https://passport.duitku.com";
+}
+
+const INVOICE_EXPIRY_MINUTES = 60;
 
 export async function createInvoice(input: {
   orderId: string;
@@ -77,8 +116,9 @@ export async function createInvoice(input: {
   productDetails: string;
 }): Promise<InvoiceResult> {
   const expiresAt = new Date(Date.now() + INVOICE_EXPIRY_MINUTES * 60 * 1000);
+  const cfg = await getDuitkuConfig();
 
-  if (isDummyPayment()) {
+  if (cfg.forceDummy) {
     return {
       reference: `DUM-${input.orderId.slice(0, 8)}-${Date.now().toString(36)}`,
       qrString: `DUMMY-QRIS://pay?ref=${input.orderId}&amount=${input.amountIdr}`,
@@ -90,24 +130,24 @@ export async function createInvoice(input: {
   }
 
   let lastError = "DUITKU_INQUIRY_FAILED";
+  const signature = await inquirySignature(input.orderId, input.amountIdr);
 
-  for (const paymentMethod of qrisChannels()) {
-    const res = await fetch(`${baseUrl()}/webapi/api/merchant/v2/inquiry`, {
+  for (const paymentMethod of qrisChannels(cfg)) {
+    const res = await fetch(`${baseUrl(cfg)}/webapi/api/merchant/v2/inquiry`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        merchantCode: merchantCode(),
+        merchantCode: cfg.merchantCode,
         paymentAmount: input.amountIdr,
         merchantOrderId: input.orderId.slice(0, 50),
         productDetails: input.productDetails.slice(0, 80),
         email: input.email,
         customerVaName: input.customerName.slice(0, 20),
         paymentMethod,
-        callbackUrl:
-          env.DUITKU_CALLBACK_URL ?? `${env.APP_URL}/api/webhooks/payment/duitku`,
-        returnUrl: `${env.APP_URL}/bayar/${input.orderId}`,
+        callbackUrl: cfg.callbackUrl,
+        returnUrl: `${cfg.appUrl}/bayar/${input.orderId}`,
         expiryPeriod: INVOICE_EXPIRY_MINUTES,
-        signature: inquirySignature(input.orderId, input.amountIdr),
+        signature,
       }),
       signal: AbortSignal.timeout(20_000),
     });

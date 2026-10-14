@@ -40,12 +40,13 @@ const MAIN_NAV: NavItem[] = [
   { href: "/dashboard/template", label: "Template", icon: Palette },
   { href: "/dashboard/tamu", label: "Tamu & RSVP", icon: Users, activePrefixes: ["/dashboard/tamu"] },
   { href: "/dashboard/pesanan", label: "Pesanan & Pembayaran", icon: Receipt },
-  { href: "/dashboard", label: "Gift Digital", icon: Gift, soon: true },
-  { href: "/dashboard", label: "Pesan & Ucapan", icon: MessageSquare, soon: true },
-  { href: "/dashboard", label: "Buku Tamu", icon: BookOpen, soon: true },
+  { href: "/dashboard/ucapan", label: "Pesan & Ucapan", icon: MessageSquare },
+  { href: "/dashboard/buku-tamu", label: "Buku Tamu", icon: BookOpen },
+  { href: "/dashboard/hadiah", label: "Gift Digital", icon: Gift },
+  { href: "/dashboard/reseller", label: "Program Reseller", icon: Crown, activePrefixes: ["/dashboard/reseller"] },
 ];
 
-const ACCOUNT_NAV: NavItem[] = [{ href: "/dashboard", label: "Pengaturan", icon: Settings, soon: true }];
+const ACCOUNT_NAV: NavItem[] = [{ href: "/dashboard/pengaturan", label: "Pengaturan", icon: Settings }];
 
 function initials(name: string) {
   return name
@@ -185,7 +186,7 @@ function SidebarInner({
               Dapatkan harga khusus untuk setiap undangan yang Anda buat.
             </p>
             <Link
-              href="/panduan#kontak"
+              href="/dashboard/reseller"
               onClick={onNavigate}
               className="flex h-10 w-full items-center justify-center rounded-[10px] bg-teal text-xs font-bold text-white shadow-[0_4px_10px_rgba(13,148,136,0.13)] transition-colors hover:bg-teal-hover"
             >

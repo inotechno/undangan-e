@@ -123,7 +123,7 @@ export default async function PricingPage() {
             ))}
           </ul>
           <Link
-            href="/daftar"
+            href="/dashboard/reseller"
             className="mt-8 inline-flex h-10 items-center justify-center rounded-lg bg-teal px-5 text-sm font-medium text-white transition-colors hover:bg-teal-hover"
           >
             Daftar & Upgrade Reseller

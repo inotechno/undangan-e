@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { writeAudit } from "@/modules/audit/log";
@@ -471,4 +471,154 @@ export async function resolvePublicGuest(
   }
 
   return null;
+}
+
+/* ── Check-in (buku tamu) ────────────────────────────────── */
+
+export interface CheckInResult {
+  ok: true;
+  guest: { id: string; name: string; checkedInAt: string };
+  duplicate: boolean;
+}
+
+export async function checkInGuest(
+  invitationId: string,
+  guestId: string,
+  actorId: string,
+  isAdmin: boolean,
+): Promise<CheckInResult | { ok: false; error: string; status: number }> {
+  const inv = await assertOwnership(invitationId, actorId, isAdmin);
+  if (!inv) return { ok: false, error: "Undangan tidak ditemukan", status: 404 };
+
+  const [guest] = await db
+    .select()
+    .from(schema.guests)
+    .where(and(eq(schema.guests.id, guestId), eq(schema.guests.invitationId, invitationId)))
+    .limit(1);
+  if (!guest) return { ok: false, error: "Tamu tidak ditemukan", status: 404 };
+
+  const now = new Date();
+  const duplicate = guest.checkedInAt != null;
+
+  if (!duplicate) {
+    await db.update(schema.guests).set({ checkedInAt: now, checkedInBy: actorId }).where(eq(schema.guests.id, guestId));
+  }
+
+  await db.insert(schema.checkIns).values({
+    id: crypto.randomUUID(),
+    guestId,
+    invitationId,
+    scannedAt: now,
+    actor: isAdmin ? "staff" : "owner",
+    result: duplicate ? "duplicate" : "success",
+  });
+
+  return {
+    ok: true,
+    duplicate,
+    guest: { id: guest.id, name: guest.name, checkedInAt: (duplicate ? guest.checkedInAt! : now).toISOString() },
+  };
+}
+
+export interface CheckInRow {
+  id: string;
+  invitationId: string;
+  invitationTitle: string;
+  invitationSlug: string;
+  guestId: string;
+  guestName: string;
+  groupName: string | null;
+  rsvp: string;
+  checkedInAt: string;
+}
+
+export interface CheckInStats {
+  totalGuests: number;
+  checkedIn: number;
+  attending: number;
+  notCheckedIn: number;
+}
+
+/** Rekap check-in lintas undangan milik owner (halaman Buku Tamu). */
+export async function listCheckInsForOwner(
+  ownerId: string,
+  query: { invitationId?: string; q?: string } = {},
+): Promise<{ items: CheckInRow[]; stats: CheckInStats; invitations: { id: string; title: string }[] }> {
+  const invRows = await db
+    .select({ id: schema.invitations.id, slug: schema.invitations.slug, config: schema.invitations.config })
+    .from(schema.invitations)
+    .where(and(eq(schema.invitations.ownerId, ownerId), sql`${schema.invitations.deletedAt} IS NULL`));
+  const invIds = invRows.map((r) => r.id);
+  if (invIds.length === 0) return { items: [], stats: { totalGuests: 0, checkedIn: 0, attending: 0, notCheckedIn: 0 }, invitations: [] };
+
+  const titleOf = (r: { slug: string; config: unknown }) => {
+    const cfg = r.config as { seo?: { title?: string }; event?: { couple?: { brideName?: string; groomName?: string } } } | null;
+    return cfg?.seo?.title ?? (cfg?.event?.couple ? `${cfg.event.couple.brideName ?? ""} & ${cfg.event.couple.groomName ?? ""}` : r.slug);
+  };
+  const invitations = invRows.map((r) => ({ id: r.id, title: titleOf(r) }));
+
+  const filters = [inArray(schema.guests.invitationId, invIds)];
+  if (query.invitationId && invIds.includes(query.invitationId)) {
+    filters.length = 0;
+    filters.push(eq(schema.guests.invitationId, query.invitationId));
+  }
+  if (query.q) {
+    const pattern = `%${query.q.replace(/[%_]/g, "\\$&")}%`;
+    filters.push(or(ilike(schema.guests.name, pattern), ilike(schema.guests.groupName, pattern))!);
+  }
+
+  const rows = await db
+    .select({
+      id: schema.guests.id,
+      invitationId: schema.guests.invitationId,
+      name: schema.guests.name,
+      groupName: schema.guests.groupName,
+      rsvp: schema.guests.rsvp,
+      checkedInAt: schema.guests.checkedInAt,
+      slug: schema.invitations.slug,
+      config: schema.invitations.config,
+    })
+    .from(schema.guests)
+    .innerJoin(schema.invitations, eq(schema.guests.invitationId, schema.invitations.id))
+    .where(and(...filters))
+    .orderBy(desc(schema.guests.checkedInAt), desc(schema.guests.createdAt))
+    .limit(1000);
+
+  const titleMap = new Map(invRows.map((r) => [r.id, titleOf(r)]));
+  const items: CheckInRow[] = rows
+    .filter((r) => r.checkedInAt != null)
+    .map((r) => ({
+      id: r.id,
+      invitationId: r.invitationId,
+      invitationTitle: titleMap.get(r.invitationId) ?? r.slug,
+      invitationSlug: r.slug,
+      guestId: r.id,
+      guestName: r.name,
+      groupName: r.groupName,
+      rsvp: r.rsvp,
+      checkedInAt: r.checkedInAt!.toISOString(),
+    }));
+
+  // Stats (seluruh tamu di undangan terkait)
+  const [statRow] = await db
+    .select({
+      totalGuests: count(),
+      checkedIn: sql<number>`count(*) filter (where ${schema.guests.checkedInAt} is not null)`,
+      attending: sql<number>`count(*) filter (where ${schema.guests.rsvp} = 'attending')`,
+    })
+    .from(schema.guests)
+    .where(inArray(schema.guests.invitationId, query.invitationId && invIds.includes(query.invitationId) ? [query.invitationId] : invIds));
+
+  const totalGuests = statRow?.totalGuests ?? 0;
+  const checkedIn = Number(statRow?.checkedIn ?? 0);
+  return {
+    items,
+    stats: {
+      totalGuests,
+      checkedIn,
+      attending: Number(statRow?.attending ?? 0),
+      notCheckedIn: totalGuests - checkedIn,
+    },
+    invitations,
+  };
 }

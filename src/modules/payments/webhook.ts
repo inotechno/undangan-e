@@ -29,7 +29,7 @@ export async function handleDuitkuCallback(payload: {
     return { ok: false, error: "Payload tidak lengkap", status: 400 };
   }
 
-  const expected = callbackSignature(amount, orderId);
+  const expected = await callbackSignature(amount, orderId);
   if (signature.toLowerCase() !== expected.toLowerCase()) {
     return { ok: false, error: "Signature tidak valid", status: 401 };
   }
@@ -74,7 +74,7 @@ export async function handleDuitkuCallback(payload: {
 
 /** Simulasi callback sandbox (mode dummy / ALLOW_PAYMENT_SIMULATION): bangun payload + signature sah, lalu proses. */
 export async function simulatePaidCallback(orderId: string): Promise<WebhookResult> {
-  if (!isPaymentSimulationEnabled()) return { ok: false, error: "Simulasi tidak diaktifkan", status: 403 };
+  if (!(await isPaymentSimulationEnabled())) return { ok: false, error: "Simulasi tidak diaktifkan", status: 403 };
   const view = await getOrderView(orderId);
   if (!view) return { ok: false, error: "Pesanan tidak ditemukan", status: 404 };
   if (view.status === "paid") return { ok: true, duplicate: true };
@@ -86,7 +86,7 @@ export async function simulatePaidCallback(orderId: string): Promise<WebhookResu
     merchantOrderId: orderId,
     resultCode: "00",
     reference,
-    signature: callbackSignature(view.finalAmountIdr, orderId),
+    signature: await callbackSignature(view.finalAmountIdr, orderId),
   });
 }
 

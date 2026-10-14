@@ -1,4 +1,4 @@
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 
@@ -168,5 +168,115 @@ export async function deleteWish(
     .where(and(eq(schema.guestbookEntries.id, wishId), eq(schema.guestbookEntries.invitationId, invitationId)))
     .returning({ id: schema.guestbookEntries.id });
   if (!deleted) return { ok: false, error: "Ucapan tidak ditemukan", status: 404 };
+  return { ok: true };
+}
+
+/* ── Moderasi lintas undangan (dashboard) ────────────────── */
+
+export interface AllWishRow {
+  id: string;
+  invitationId: string;
+  invitationTitle: string;
+  invitationSlug: string;
+  name: string;
+  message: string;
+  status: "visible" | "hidden";
+  createdAt: string;
+}
+
+export async function listWishesForOwnerAll(ownerId: string): Promise<{
+  items: AllWishRow[];
+  visible: number;
+  hidden: number;
+  total: number;
+}> {
+  // Ambil ID undangan milik user (non-deleted).
+  const invRows = await db
+    .select({ id: schema.invitations.id })
+    .from(schema.invitations)
+    .where(and(eq(schema.invitations.ownerId, ownerId), sql`${schema.invitations.deletedAt} IS NULL`));
+  const invIds = invRows.map((r) => r.id);
+  if (invIds.length === 0) return { items: [], visible: 0, hidden: 0, total: 0 };
+
+  const rows = await db
+    .select({
+      id: schema.guestbookEntries.id,
+      invitationId: schema.guestbookEntries.invitationId,
+      name: schema.guestbookEntries.name,
+      message: schema.guestbookEntries.message,
+      status: schema.guestbookEntries.status,
+      createdAt: schema.guestbookEntries.createdAt,
+      invitationSlug: schema.invitations.slug,
+      config: schema.invitations.config,
+    })
+    .from(schema.guestbookEntries)
+    .innerJoin(schema.invitations, eq(schema.guestbookEntries.invitationId, schema.invitations.id))
+    .where(inArray(schema.guestbookEntries.invitationId, invIds))
+    .orderBy(desc(schema.guestbookEntries.createdAt))
+    .limit(500);
+
+  const [stat] = await db
+    .select({
+      visible: sql<number>`count(*) filter (where ${schema.guestbookEntries.status} = 'visible')`,
+      hidden: sql<number>`count(*) filter (where ${schema.guestbookEntries.status} = 'hidden')`,
+      total: count(),
+    })
+    .from(schema.guestbookEntries)
+    .where(inArray(schema.guestbookEntries.invitationId, invIds));
+
+  return {
+    items: rows.map((r) => {
+      const cfg = r.config as { seo?: { title?: string }; event?: { couple?: { brideName?: string; groomName?: string } } } | null;
+      const title =
+        cfg?.seo?.title ??
+        (cfg?.event?.couple
+          ? `${cfg.event.couple.brideName ?? ""} & ${cfg.event.couple.groomName ?? ""}`
+          : r.invitationSlug);
+      return {
+        id: r.id,
+        invitationId: r.invitationId,
+        invitationTitle: title,
+        invitationSlug: r.invitationSlug,
+        name: r.name,
+        message: r.message,
+        status: r.status,
+        createdAt: r.createdAt.toISOString(),
+      };
+    }),
+    visible: Number(stat?.visible ?? 0),
+    hidden: Number(stat?.hidden ?? 0),
+    total: stat?.total ?? 0,
+  };
+}
+
+/** Moderasi lintas undangan: verifikasi ownership dulu, lalu toggle. */
+export async function moderateWishByOwner(
+  ownerId: string,
+  wishId: string,
+  status: "visible" | "hidden",
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const [row] = await db
+    .select({ id: schema.guestbookEntries.id, invitationId: schema.guestbookEntries.invitationId })
+    .from(schema.guestbookEntries)
+    .innerJoin(schema.invitations, eq(schema.guestbookEntries.invitationId, schema.invitations.id))
+    .where(and(eq(schema.guestbookEntries.id, wishId), eq(schema.invitations.ownerId, ownerId)))
+    .limit(1);
+  if (!row) return { ok: false, error: "Ucapan tidak ditemukan", status: 404 };
+  await db.update(schema.guestbookEntries).set({ status }).where(eq(schema.guestbookEntries.id, wishId));
+  return { ok: true };
+}
+
+export async function deleteWishByOwner(
+  ownerId: string,
+  wishId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const [row] = await db
+    .select({ id: schema.guestbookEntries.id })
+    .from(schema.guestbookEntries)
+    .innerJoin(schema.invitations, eq(schema.guestbookEntries.invitationId, schema.invitations.id))
+    .where(and(eq(schema.guestbookEntries.id, wishId), eq(schema.invitations.ownerId, ownerId)))
+    .limit(1);
+  if (!row) return { ok: false, error: "Ucapan tidak ditemukan", status: 404 };
+  await db.delete(schema.guestbookEntries).where(eq(schema.guestbookEntries.id, wishId));
   return { ok: true };
 }

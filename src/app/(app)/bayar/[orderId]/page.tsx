@@ -42,7 +42,7 @@ export default async function BayarPage({ params }: Props) {
         paymentUrl={view.paymentUrl}
         attemptExpiresAt={view.attemptExpiresAt?.toISOString() ?? null}
         invitationSlug={view.invitationSlug}
-        canSimulate={isPaymentSimulationEnabled()}
+        canSimulate={await isPaymentSimulationEnabled()}
       />
     </div>
   );

@@ -12,7 +12,7 @@ const bodySchema = z.object({ orderId: z.uuid() });
 export async function POST(req: Request) {
   const auth = await getSessionWithRoles();
   if (!auth) return NextResponse.json({ error: "Belum masuk" }, { status: 401 });
-  if (!isPaymentSimulationEnabled()) {
+  if (!(await isPaymentSimulationEnabled())) {
     return NextResponse.json({ error: "Tidak tersedia di mode produksi" }, { status: 403 });
   }
   let raw: unknown;

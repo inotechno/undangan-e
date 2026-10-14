@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/auth/guard";
 import { getPaymentCostSettings } from "@/modules/payments/pricing";
+import { getPlatformSettings } from "@/modules/settings/server";
 import { PaymentFeesForm } from "./payment-fees-form";
+import { PlatformSettingsForm } from "./platform-settings-form";
 
 export const instant = false;
 
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function AdminSettingsPage() {
   await requireAdmin();
-  const cost = await getPaymentCostSettings();
+  const [cost, platform] = await Promise.all([getPaymentCostSettings(), getPlatformSettings()]);
   return (
     <div>
       <div className="mb-6">
@@ -30,6 +32,25 @@ export default async function AdminSettingsPage() {
           <li>Admin tidak dapat menaikkan role dirinya sendiri.</li>
         </ul>
       </section>
+
+      <div className="mb-4">
+        <PlatformSettingsForm
+          initial={{
+            appName: platform.appName,
+            supportEmail: platform.supportEmail,
+            supportWhatsapp: platform.supportWhatsapp,
+            duitkuMerchantCode: platform.duitkuMerchantCode,
+            duitkuApiKey: platform.duitkuApiKey ? "••••" + platform.duitkuApiKey.slice(-4) : "",
+            duitkuApiKeySet: Boolean(platform.duitkuApiKey),
+            duitkuQrisCode: platform.duitkuQrisCode,
+            duitkuSandbox: platform.duitkuSandbox,
+            duitkuForceDummy: platform.duitkuForceDummy,
+            allowSimulation: platform.allowSimulation,
+            resellerUpgradePriceIdr: platform.resellerUpgradePriceIdr,
+            resellerUpgradeEnabled: platform.resellerUpgradeEnabled,
+          }}
+        />
+      </div>
 
       <div className="mb-4">
         <PaymentFeesForm
@@ -52,7 +73,7 @@ export default async function AdminSettingsPage() {
             href="/admin/pricing"
             className="inline-flex h-9 items-center rounded-lg border border-[#dbe5e9] bg-white px-3 text-[11px] font-bold text-[#425968] transition-colors hover:border-teal hover:text-teal"
           >
-            Harga & Upgrade
+            Harga &amp; Upgrade
           </Link>
           <Link
             href="/admin/vouchers"
@@ -61,10 +82,6 @@ export default async function AdminSettingsPage() {
             Voucher
           </Link>
         </div>
-        <p className="mt-4 text-[10px] text-[#687b88]">
-          Form pengaturan platform (nama, URL publik, email dukungan) akan tersedia pada iterasi
-          berikutnya.
-        </p>
       </section>
     </div>
   );
