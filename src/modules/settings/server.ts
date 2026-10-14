@@ -37,9 +37,15 @@ export const PLATFORM_SETTING_KEYS = [
   "reseller.upgrade_enabled",
   "google.client_id",
   "google.client_secret",
+  "email.provider",
   "email.resend_api_key",
   "email.from_address",
   "email.from_name",
+  "email.smtp_host",
+  "email.smtp_port",
+  "email.smtp_user",
+  "email.smtp_pass",
+  "email.smtp_secure",
   "auth.require_email_verification",
 ] as const;
 
@@ -59,9 +65,15 @@ export interface PlatformSettings {
   resellerUpgradeEnabled: boolean;
   googleClientId: string;
   googleClientSecret: string;
+  emailProvider: "smtp" | "resend";
   resendApiKey: string;
   emailFromAddress: string;
   emailFromName: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUser: string;
+  smtpPass: string;
+  smtpSecure: boolean;
   requireEmailVerification: boolean;
 }
 
@@ -79,9 +91,15 @@ export const platformSettingsSchema = z.object({
   resellerUpgradeEnabled: z.boolean(),
   googleClientId: z.string().trim().max(200).or(z.literal("")),
   googleClientSecret: z.string().trim().max(200).or(z.literal("")),
+  emailProvider: z.enum(["smtp", "resend"]).default("resend"),
   resendApiKey: z.string().trim().max(200).or(z.literal("")),
   emailFromAddress: z.string().trim().email().or(z.literal("")),
   emailFromName: z.string().trim().max(80).or(z.literal("")),
+  smtpHost: z.string().trim().max(200).or(z.literal("")),
+  smtpPort: z.coerce.number().int().min(1).max(65535).default(587),
+  smtpUser: z.string().trim().max(200).or(z.literal("")),
+  smtpPass: z.string().trim().max(200).or(z.literal("")),
+  smtpSecure: z.boolean().default(false),
   requireEmailVerification: z.boolean(),
 });
 
@@ -111,9 +129,15 @@ export async function getPlatformSettings(): Promise<PlatformSettings> {
     resellerUpgradeEnabled: b("reseller.upgrade_enabled", true),
     googleClientId: s("google.client_id"),
     googleClientSecret: s("google.client_secret"),
+    emailProvider: s("email.provider") === "smtp" ? "smtp" : "resend",
     resendApiKey: s("email.resend_api_key"),
     emailFromAddress: s("email.from_address"),
     emailFromName: s("email.from_name"),
+    smtpHost: s("email.smtp_host"),
+    smtpPort: n("email.smtp_port", 587),
+    smtpUser: s("email.smtp_user"),
+    smtpPass: s("email.smtp_pass"),
+    smtpSecure: b("email.smtp_secure", false),
     requireEmailVerification: b("auth.require_email_verification", false),
   };
 }
@@ -133,9 +157,15 @@ export async function setPlatformSettings(input: PlatformSettings, updatedBy: st
     ["reseller.upgrade_enabled", input.resellerUpgradeEnabled],
     ["google.client_id", input.googleClientId],
     ["google.client_secret", input.googleClientSecret],
+    ["email.provider", input.emailProvider],
     ["email.resend_api_key", input.resendApiKey],
     ["email.from_address", input.emailFromAddress],
     ["email.from_name", input.emailFromName],
+    ["email.smtp_host", input.smtpHost],
+    ["email.smtp_port", input.smtpPort],
+    ["email.smtp_user", input.smtpUser],
+    ["email.smtp_pass", input.smtpPass],
+    ["email.smtp_secure", input.smtpSecure],
     ["auth.require_email_verification", input.requireEmailVerification],
   ];
   await db.transaction(async (tx) => {

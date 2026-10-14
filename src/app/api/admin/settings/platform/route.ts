@@ -19,6 +19,8 @@ export async function GET() {
     googleClientSecretSet: Boolean(settings.googleClientSecret),
     resendApiKey: settings.resendApiKey ? "••••" + settings.resendApiKey.slice(-4) : "",
     resendApiKeySet: Boolean(settings.resendApiKey),
+    smtpPass: settings.smtpPass ? "••••" + settings.smtpPass.slice(-4) : "",
+    smtpPassSet: Boolean(settings.smtpPass),
   });
 }
 
@@ -46,6 +48,9 @@ export async function PATCH(req: Request) {
   }
   if (data.resendApiKey.startsWith("••••")) {
     data.resendApiKey = current.resendApiKey;
+  }
+  if (data.smtpPass.startsWith("••••")) {
+    data.smtpPass = current.smtpPass;
   }
 
   await setPlatformSettings(data, auth.session.user.id);

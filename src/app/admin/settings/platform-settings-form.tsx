@@ -21,10 +21,17 @@ type Props = {
     googleClientId: string;
     googleClientSecret: string;
     googleClientSecretSet: boolean;
+    emailProvider: "smtp" | "resend";
     resendApiKey: string;
     resendApiKeySet: boolean;
     emailFromAddress: string;
     emailFromName: string;
+    smtpHost: string;
+    smtpPort: number;
+    smtpUser: string;
+    smtpPass: string;
+    smtpPassSet: boolean;
+    smtpSecure: boolean;
     requireEmailVerification: boolean;
   };
 };
@@ -72,9 +79,15 @@ export function PlatformSettingsForm({ initial }: Props) {
   const [upgradeEnabled, setUpgradeEnabled] = useState(initial.resellerUpgradeEnabled);
   const [googleClientId, setGoogleClientId] = useState(initial.googleClientId);
   const [googleClientSecret, setGoogleClientSecret] = useState(initial.googleClientSecret);
+  const [emailProvider, setEmailProvider] = useState<"smtp" | "resend">(initial.emailProvider);
   const [resendApiKey, setResendApiKey] = useState(initial.resendApiKey);
   const [emailFromAddress, setEmailFromAddress] = useState(initial.emailFromAddress);
   const [emailFromName, setEmailFromName] = useState(initial.emailFromName);
+  const [smtpHost, setSmtpHost] = useState(initial.smtpHost);
+  const [smtpPort, setSmtpPort] = useState(String(initial.smtpPort));
+  const [smtpUser, setSmtpUser] = useState(initial.smtpUser);
+  const [smtpPass, setSmtpPass] = useState(initial.smtpPass);
+  const [smtpSecure, setSmtpSecure] = useState(initial.smtpSecure);
   const [requireEmailVerif, setRequireEmailVerif] = useState(initial.requireEmailVerification);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
@@ -101,9 +114,15 @@ export function PlatformSettingsForm({ initial }: Props) {
           resellerUpgradeEnabled: upgradeEnabled,
           googleClientId: googleClientId.trim(),
           googleClientSecret: googleClientSecret.trim(),
+          emailProvider,
           resendApiKey: resendApiKey.trim(),
           emailFromAddress: emailFromAddress.trim(),
           emailFromName: emailFromName.trim(),
+          smtpHost: smtpHost.trim(),
+          smtpPort: Number(smtpPort) || 587,
+          smtpUser: smtpUser.trim(),
+          smtpPass: smtpPass.trim(),
+          smtpSecure,
           requireEmailVerification: requireEmailVerif,
         }),
       });
@@ -245,36 +264,155 @@ export function PlatformSettingsForm({ initial }: Props) {
         </label>
       </div>
 
-      <h3 className="mt-5 text-xs font-bold tracking-wide text-[#425968] uppercase">Email (Resend)</h3>
+      <h3 className="mt-5 text-xs font-bold tracking-wide text-[#425968] uppercase">Email Auth (Verifikasi &amp; Reset Password)</h3>
       <p className="mt-1 text-[11px] leading-relaxed text-[#687b88]">
-        Untuk verifikasi email &amp; reset password. Kosongkan API key untuk fallback <code>.env</code> RESEND_API_KEY.
+        Pilih provider email. SMTP direkomendasikan untuk production (gratis via Gmail SMTP, dll).
       </p>
-      <div className="mt-2 grid gap-3 sm:grid-cols-3">
-        <label>
-          <span className={labelCls}>Resend API Key {initial.resendApiKeySet ? "(sudah diisi — kosongkan untuk hapus)" : ""}</span>
-          <input
-            type="password"
-            value={resendApiKey}
-            onChange={(e) => setResendApiKey(e.target.value)}
-            placeholder={initial.resendApiKeySet ? "••••" : "re_…"}
-            className={inputCls}
-          />
-        </label>
-        <label>
-          <span className={labelCls}>Nama pengirim</span>
-          <input value={emailFromName} onChange={(e) => setEmailFromName(e.target.value)} placeholder="UndanganE" className={inputCls} />
-        </label>
-        <label>
-          <span className={labelCls}>Email pengirim</span>
-          <input
-            type="email"
-            value={emailFromAddress}
-            onChange={(e) => setEmailFromAddress(e.target.value)}
-            placeholder="noreply@domain.com"
-            className={inputCls}
-          />
-        </label>
+
+      {/* Provider selector */}
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          onClick={() => setEmailProvider("smtp")}
+          className={`rounded-lg border px-4 py-2 text-xs font-bold transition-colors ${
+            emailProvider === "smtp"
+              ? "border-teal bg-teal text-white"
+              : "border-[#dbe5e9] bg-white text-[#425968] hover:border-teal hover:text-teal"
+          }`}
+        >
+          SMTP
+        </button>
+        <button
+          type="button"
+          onClick={() => setEmailProvider("resend")}
+          className={`rounded-lg border px-4 py-2 text-xs font-bold transition-colors ${
+            emailProvider === "resend"
+              ? "border-teal bg-teal text-white"
+              : "border-[#dbe5e9] bg-white text-[#425968] hover:border-teal hover:text-teal"
+          }`}
+        >
+          Resend
+        </button>
       </div>
+
+      {/* ── SMTP fields ── */}
+      {emailProvider === "smtp" && (
+        <div className="mt-3 rounded-lg border border-[#e4ebee] p-4">
+          <p className="mb-3 text-[11px] leading-relaxed text-[#687b88]">
+            Contoh Gmail: Host <code className="rounded bg-[#f1f5f7] px-1">smtp.gmail.com</code>, Port{" "}
+            <code className="rounded bg-[#f1f5f7] px-1">587</code>, User = email Gmail, Pass ={" "}
+            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-teal underline">
+              App Password
+            </a>{" "}
+            (bukan password biasa).
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label>
+              <span className={labelCls}>SMTP Host</span>
+              <input
+                value={smtpHost}
+                onChange={(e) => setSmtpHost(e.target.value)}
+                placeholder="smtp.gmail.com"
+                className={inputCls}
+              />
+            </label>
+            <label>
+              <span className={labelCls}>SMTP Port</span>
+              <input
+                type="number"
+                min={1}
+                max={65535}
+                value={smtpPort}
+                onChange={(e) => setSmtpPort(e.target.value)}
+                placeholder="587"
+                className={inputCls}
+              />
+            </label>
+            <label>
+              <span className={labelCls}>SMTP User</span>
+              <input
+                value={smtpUser}
+                onChange={(e) => setSmtpUser(e.target.value)}
+                placeholder="user@gmail.com"
+                className={inputCls}
+              />
+            </label>
+            <label>
+              <span className={labelCls}>SMTP Password {initial.smtpPassSet ? "(sudah diisi — kosongkan untuk hapus)" : ""}</span>
+              <input
+                type="password"
+                value={smtpPass}
+                onChange={(e) => setSmtpPass(e.target.value)}
+                placeholder={initial.smtpPassSet ? "••••" : "App Password"}
+                className={inputCls}
+              />
+            </label>
+          </div>
+          <div className="mt-3 flex items-center gap-4">
+            <ToggleRow
+              id="smtp-secure"
+              label="SMTP Secure (SSL/TLS)"
+              hint="Aktif untuk port 465. Nonaktif untuk port 587 (STARTTLS otomatis)."
+              checked={smtpSecure}
+              onChange={setSmtpSecure}
+            />
+            <label className="flex items-center gap-1.5 text-xs text-[#425968]">
+              <span className={labelCls}>Nama pengirim</span>
+              <input
+                value={emailFromName}
+                onChange={(e) => setEmailFromName(e.target.value)}
+                placeholder="UndanganE"
+                className={inputCls}
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* ── Resend fields ── */}
+      {emailProvider === "resend" && (
+        <div className="mt-3 rounded-lg border border-[#e4ebee] p-4">
+          <p className="mb-3 text-[11px] leading-relaxed text-[#687b88]">
+            API key dari{" "}
+            <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-teal underline">
+              resend.com/api-keys
+            </a>
+            . Kosongkan untuk fallback <code className="rounded bg-[#f1f5f7] px-1">.env</code> RESEND_API_KEY.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label>
+              <span className={labelCls}>Resend API Key {initial.resendApiKeySet ? "(sudah diisi — kosongkan untuk hapus)" : ""}</span>
+              <input
+                type="password"
+                value={resendApiKey}
+                onChange={(e) => setResendApiKey(e.target.value)}
+                placeholder={initial.resendApiKeySet ? "••••" : "re_…"}
+                className={inputCls}
+              />
+            </label>
+            <label>
+              <span className={labelCls}>Nama pengirim</span>
+              <input
+                value={emailFromName}
+                onChange={(e) => setEmailFromName(e.target.value)}
+                placeholder="UndanganE"
+                className={inputCls}
+              />
+            </label>
+            <label>
+              <span className={labelCls}>Email pengirim</span>
+              <input
+                type="email"
+                value={emailFromAddress}
+                onChange={(e) => setEmailFromAddress(e.target.value)}
+                placeholder="noreply@domain.com"
+                className={inputCls}
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
       <div className="mt-3">
         <ToggleRow
           id="require-email-verif"

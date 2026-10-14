@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { env } from "@/core/config";
 import { getPlatformSettings } from "@/modules/settings/server";
 
@@ -7,15 +8,26 @@ export interface AuthEmailInput {
   html: string;
 }
 
-/** Kirim email via Resend API. API key & from diambil dari settings admin (fallback env). */
+/** Kirim email via SMTP (nodemailer) atau Resend API — tergantung `email.provider` di admin settings. */
 export async function sendAuthEmail(input: AuthEmailInput): Promise<{ ok: true } | { ok: false; error: string }> {
   const settings = await getPlatformSettings();
+
+  const fromName = settings.emailFromName || settings.appName || "UndanganE";
+  const fromAddress =
+    settings.emailProvider === "smtp" && settings.smtpUser
+      ? settings.smtpUser
+      : settings.emailFromAddress || "onboarding@resend.dev";
+  const from = `${fromName} <${fromAddress}>`;
+
+  if (settings.emailProvider === "smtp") {
+    return sendViaSmtp(settings.smtpHost, settings.smtpPort, settings.smtpUser, settings.smtpPass, settings.smtpSecure, from, input);
+  }
+
+  // ── Resend ──
   const apiKey = settings.resendApiKey || env.RESEND_API_KEY;
   if (!apiKey) return { ok: false, error: "RESEND_API_KEY belum dikonfigurasi" };
 
-  const fromName = settings.emailFromName || settings.appName || "UndanganE";
-  const fromAddress = settings.emailFromAddress || "UndanganE <onboarding@resend.dev>";
-  const from = settings.emailFromAddress ? `${fromName} <${settings.emailFromAddress}>` : fromAddress;
+  const resendFrom = settings.emailFromAddress ? from : "UndanganE <onboarding@resend.dev>";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -24,7 +36,7 @@ export async function sendAuthEmail(input: AuthEmailInput): Promise<{ ok: true }
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from,
+      from: resendFrom,
       to: [input.to],
       subject: input.subject,
       html: input.html,
@@ -38,6 +50,39 @@ export async function sendAuthEmail(input: AuthEmailInput): Promise<{ ok: true }
     return { ok: false, error: `Resend ${res.status}` };
   }
   return { ok: true };
+}
+
+async function sendViaSmtp(
+  host: string,
+  port: number,
+  user: string,
+  pass: string,
+  secure: boolean,
+  from: string,
+  input: AuthEmailInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!host) return { ok: false, error: "SMTP_HOST belum dikonfigurasi" };
+
+  const transport = nodemailer.createTransport({
+    host,
+    port,
+    secure, // true = 465 (SSL/TLS), false = 587 (STARTTLS)
+    auth: user && pass ? { user, pass } : undefined,
+    connectionTimeout: 10_000,
+  });
+
+  try {
+    await transport.sendMail({
+      from,
+      to: input.to,
+      subject: input.subject,
+      html: input.html,
+    });
+    return { ok: true };
+  } catch (e) {
+    console.error("[email] SMTP error", e);
+    return { ok: false, error: e instanceof Error ? e.message : "SMTP gagal" };
+  }
 }
 
 const shell = (title: string, bodyHtml: string) => `

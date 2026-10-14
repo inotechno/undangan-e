@@ -51,10 +51,17 @@ export default async function AdminSettingsPage() {
             googleClientId: platform.googleClientId,
             googleClientSecret: platform.googleClientSecret ? "••••" + platform.googleClientSecret.slice(-4) : "",
             googleClientSecretSet: Boolean(platform.googleClientSecret),
+            emailProvider: platform.emailProvider,
             resendApiKey: platform.resendApiKey ? "••••" + platform.resendApiKey.slice(-4) : "",
             resendApiKeySet: Boolean(platform.resendApiKey),
             emailFromAddress: platform.emailFromAddress,
             emailFromName: platform.emailFromName,
+            smtpHost: platform.smtpHost,
+            smtpPort: platform.smtpPort,
+            smtpUser: platform.smtpUser,
+            smtpPass: platform.smtpPass ? "••••" + platform.smtpPass.slice(-4) : "",
+            smtpPassSet: Boolean(platform.smtpPass),
+            smtpSecure: platform.smtpSecure,
             requireEmailVerification: platform.requireEmailVerification,
           }}
         />
