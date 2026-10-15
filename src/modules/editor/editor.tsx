@@ -25,6 +25,7 @@ import { useAutosave } from "./use-autosave";
 import { PhonePreview } from "./preview";
 import {
   AcaraPanel,
+  CoverPanel,
   HadiahMusikPanel,
   JadwalPanel,
   KontenPanel,
@@ -40,15 +41,17 @@ export interface EditorInitial {
   pendingOrderId: string | null;
   template: {
     name: string;
-    layout: "full_bleed" | "curtain" | "frame_device" | "slider";
+    layout: "full_bleed" | "curtain" | "frame_device" | "slider" | "paper";
     defaultTheme?: Partial<ThemeTokens>;
     defaultSections?: Partial<Record<SectionId, boolean>>;
+    defaultCover?: InvitationConfig["cover"];
     sectionLabels?: SectionLabels;
   };
 }
 
 const TABS = [
   { id: "acara", label: "Acara" },
+  { id: "sampul", label: "Sampul" },
   { id: "jadwal", label: "Jadwal" },
   { id: "konten", label: "Konten" },
   { id: "hadiah", label: "Hadiah & Musik" },
@@ -232,6 +235,7 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
 
           <div className="mt-4 rounded-xl border border-border-warm bg-surface p-4 sm:p-5">
             {tab === "acara" ? <AcaraPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
+            {tab === "sampul" ? <CoverPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "jadwal" ? <JadwalPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "konten" ? <KontenPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "hadiah" ? <HadiahMusikPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
@@ -286,6 +290,7 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
               layout={initial.template.layout}
               defaultTheme={initial.template.defaultTheme}
               defaultSections={initial.template.defaultSections}
+              defaultCover={initial.template.defaultCover}
               labels={initial.template.sectionLabels}
             />
           </div>
@@ -300,6 +305,7 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
             layout={initial.template.layout}
             defaultTheme={initial.template.defaultTheme}
             defaultSections={initial.template.defaultSections}
+            defaultCover={initial.template.defaultCover}
             labels={initial.template.sectionLabels}
           />
         </aside>

@@ -82,15 +82,90 @@ function SectionHeading({ eyebrow, title }: { eyebrow?: string; title: string })
 
 /* ── Cover ───────────────────────────────────────────────── */
 
+/** Frame foto lingkaran dengan ring emas (untuk cover style "framed"). */
+function FramedPhoto({ src, alt, shape }: { src: string; alt: string; shape: "circle" | "arch" | "rounded" }) {
+  const radius = shape === "circle" ? "9999px" : shape === "arch" ? "9999px 9999px 24px 24px" : "24px";
+  const aspect = shape === "arch" ? "3 / 4" : "1 / 1";
+  return (
+    <div className="relative mx-auto mb-8 w-56 sm:w-72">
+      {/* Ring luar */}
+      <div
+        className="absolute -inset-2 sm:-inset-3"
+        style={{
+          borderRadius: radius,
+          border: "2px solid color-mix(in srgb, var(--inv-accent) 50%, #d4af37)",
+          opacity: 0.5,
+        }}
+        aria-hidden
+      />
+      {/* Ring dalam */}
+      <div
+        className="absolute -inset-1 sm:-inset-1.5"
+        style={{
+          borderRadius: radius,
+          border: "1px solid color-mix(in srgb, var(--inv-accent) 30%, #d4af37)",
+          opacity: 0.7,
+        }}
+        aria-hidden
+      />
+      <div
+        className="relative overflow-hidden"
+        style={{ borderRadius: radius, aspectRatio: aspect }}
+      >
+        <Image src={src} alt={alt} fill sizes="(max-width: 640px) 224px, 288px" className="object-cover" />
+      </div>
+    </div>
+  );
+}
+
+/** Nama cover: horizontal ("A & B") atau vertical (A / & / B). */
+function CoverNames({ names, orientation }: { names: string; orientation: "horizontal" | "vertical" }) {
+  if (orientation === "vertical") {
+    const parts = names.split(/\s*&\s*/);
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-3xl leading-tight font-bold sm:text-5xl" style={{ fontFamily: "var(--inv-heading)" }}>
+          {parts[0]}
+        </span>
+        <span className="text-lg opacity-60">&amp;</span>
+        <span className="text-3xl leading-tight font-bold sm:text-5xl" style={{ fontFamily: "var(--inv-heading)" }}>
+          {parts[1] ?? ""}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <h1
+      className="max-w-xl text-4xl leading-[1.15] font-bold text-balance sm:text-6xl"
+      style={{ fontFamily: "var(--inv-heading)" }}
+    >
+      {names}
+    </h1>
+  );
+}
+
 function CoverContent({ ctx, subtitle }: { ctx: SectionContext; subtitle?: string }) {
   const { config, guest, theme } = ctx;
+  const coverCfg = config.cover;
   const names = config.event.couple
     ? `${config.event.couple.brideName} & ${config.event.couple.groomName}`
     : (config.event.celebrant?.name ?? config.event.host?.name ?? config.event.title ?? "Undangan");
   const orn = decorationSrc(theme.decorations);
+  const spacing = coverCfg?.spacing ?? 0;
+  const spacingPx = spacing > 0 ? `${spacing * 2}px` : undefined;
+
+  // Nama orang yang diundang (bisa pakai nama dari cover, atau default)
+  const guestName = guest?.name ?? "";
 
   return (
-    <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-6 text-center text-white">
+    <div
+      className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-6 text-center"
+      style={{
+        color: coverCfg?.style === "framed" || coverCfg?.style === "minimal" ? "var(--inv-text)" : "#fff",
+        paddingTop: spacingPx,
+        paddingBottom: spacingPx,
+      }}
+    >
       {orn ? (
         <Image
           src={orn}
@@ -99,29 +174,86 @@ function CoverContent({ ctx, subtitle }: { ctx: SectionContext; subtitle?: strin
           width={120}
           height={40}
           unoptimized
-          className="mx-auto mb-6 h-7 w-auto opacity-85 [filter:brightness(0)_invert(1)]"
+          className={cn(
+            "mx-auto mb-6 h-7 w-auto",
+            coverCfg?.style === "photo_overlay" ? "opacity-85 [filter:brightness(0)_invert(1)]" : "opacity-70",
+          )}
         />
       ) : null}
-      <p className="text-[11px] font-semibold tracking-[0.32em] uppercase opacity-85">{subtitle}</p>
-      <div className="mx-auto my-6 flex items-center justify-center gap-3" aria-hidden>
-        <span className="h-px w-12 bg-white/50" />
-        <span className="text-xs leading-none opacity-80">✦</span>
-        <span className="h-px w-12 bg-white/50" />
-      </div>
-      <h1
-        className="max-w-xl text-4xl leading-[1.15] font-bold text-balance sm:text-6xl"
-        style={{ fontFamily: "var(--inv-heading)" }}
+
+      {/* Eyebrow / judul acara */}
+      <p
+        className={cn(
+          "text-[11px] font-semibold tracking-[0.32em] uppercase",
+          coverCfg?.style === "photo_overlay" ? "opacity-85" : "opacity-55",
+        )}
       >
-        {names}
-      </h1>
-      <p className="mt-5 text-sm tracking-wide text-white/85 sm:text-base">
+        {subtitle}
+      </p>
+
+      {/* Divider */}
+      <div className="mx-auto my-6 flex items-center justify-center gap-3" aria-hidden>
+        <span className={cn("h-px w-12", coverCfg?.style === "photo_overlay" ? "bg-white/50" : "bg-current opacity-25")} />
+        <span className={cn("text-xs leading-none", coverCfg?.style === "photo_overlay" ? "opacity-80" : "opacity-40")}>✦</span>
+        <span className={cn("h-px w-12", coverCfg?.style === "photo_overlay" ? "bg-white/50" : "bg-current opacity-25")} />
+      </div>
+
+      {/* Foto berbingkai (style "framed") */}
+      {coverCfg?.style === "framed" && (config.seo.coverImage ?? config.event.photo) ? (
+        <FramedPhoto
+          src={config.seo.coverImage ?? config.event.photo!}
+          alt={config.seo.title ?? "Foto sampul"}
+          shape={coverCfg.frameShape ?? "circle"}
+        />
+      ) : null}
+
+      {/* Nama */}
+      <CoverNames names={names} orientation={coverCfg?.nameOrientation ?? "horizontal"} />
+
+      {/* Tanggal */}
+      <p
+        className={cn(
+          "mt-5 text-sm tracking-wide sm:text-base",
+          coverCfg?.style === "photo_overlay" ? "text-white/85" : "opacity-70",
+        )}
+      >
         {fmtDate(config.event.date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
       </p>
-      {guest ? (
-        <p className="mt-7 rounded-full border border-white/40 bg-white/10 px-5 py-2 text-xs text-white/90 backdrop-blur">
-          Kepada Yth. <span className="font-semibold">{guest.name}</span>
+
+      {/* Kalimat pembuka (opsional) */}
+      {coverCfg?.openingText ? (
+        <p
+          className={cn(
+            "mt-6 max-w-md text-[13px] leading-relaxed sm:text-sm",
+            coverCfg.style === "photo_overlay" ? "text-white/75" : "opacity-60",
+          )}
+        >
+          {coverCfg.openingText}
         </p>
       ) : null}
+
+      {/* Kartu nama tamu */}
+      {guestName ? (
+        <div
+          className={cn(
+            "mt-8 rounded-2xl border px-6 py-4 backdrop-blur",
+            coverCfg?.style === "photo_overlay"
+              ? "border-white/30 bg-white/10 text-white"
+              : "border-current/15 bg-black/[0.04]",
+          )}
+        >
+          <p className={cn("text-[10px] font-semibold tracking-[0.2em] uppercase", coverCfg?.style === "photo_overlay" ? "text-white/60" : "opacity-45")}>
+            {coverCfg?.guestPreText || "Kepada Yth."}
+          </p>
+          <p className="mt-1.5 text-base font-bold sm:text-lg">{guestName}</p>
+          {coverCfg?.guestPostText ? (
+            <p className={cn("mt-1 text-[11px]", coverCfg.style === "photo_overlay" ? "text-white/60" : "opacity-45")}>
+              {coverCfg.guestPostText}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="mt-12">
         <ScrollCue />
       </div>
@@ -130,9 +262,24 @@ function CoverContent({ ctx, subtitle }: { ctx: SectionContext; subtitle?: strin
 }
 
 function Cover({ ctx }: { ctx: SectionContext }) {
-  const { config } = ctx;
+  const { config, theme } = ctx;
   const cover = config.seo.coverImage ?? config.event.photo;
+  const style = config.cover?.style ?? "photo_overlay";
 
+  // ── Style "framed" & "minimal": background solid dari palette ──
+  if (style === "framed" || style === "minimal") {
+    const bgGradient =
+      theme.palette.bg === "#0F172A" || theme.palette.bg === "#0B1220"
+        ? `linear-gradient(160deg, ${theme.palette.bg}, color-mix(in srgb, ${theme.palette.accent} 18%, ${theme.palette.bg}))`
+        : `linear-gradient(160deg, color-mix(in srgb, ${theme.palette.bg} 92%, #000), color-mix(in srgb, ${theme.palette.bg} 80%, ${theme.palette.accent} 8%))`;
+    return (
+      <header id="cover" className="relative min-h-dvh overflow-hidden" style={{ background: bgGradient }}>
+        <CoverContent ctx={ctx} subtitle={config.event.title ?? DEFAULT_EYEBROWS[config.event.type]} />
+      </header>
+    );
+  }
+
+  // ── Style "photo_overlay" (default lama): foto full-bleed + overlay gelap ──
   return (
     <header id="cover" className="relative min-h-dvh overflow-hidden">
       {cover ? (

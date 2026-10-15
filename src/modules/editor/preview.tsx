@@ -17,12 +17,14 @@ export function PhonePreview({
   layout,
   defaultTheme,
   defaultSections,
+  defaultCover,
   labels,
 }: {
   config: InvitationConfig;
-  layout: "full_bleed" | "curtain" | "frame_device" | "slider";
+  layout: "full_bleed" | "curtain" | "frame_device" | "slider" | "paper";
   defaultTheme?: Partial<ThemeTokens>;
   defaultSections?: Partial<Record<SectionId, boolean>>;
+  defaultCover?: InvitationConfig["cover"];
   labels?: SectionLabels | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,6 +45,7 @@ export function PhonePreview({
 
   const theme = resolveTheme(defaultTheme, config.theme);
   const sections = { ...defaultSections, ...config.sections };
+  const cover = { ...defaultCover, ...config.cover };
 
   return (
     <div ref={containerRef} className="w-full overflow-hidden">
@@ -63,7 +66,7 @@ export function PhonePreview({
         >
           <div className="h-full w-full overflow-y-auto overscroll-contain">
             <InvitationRenderer
-              config={config}
+              config={{ ...config, cover }}
               theme={theme}
               layout={layout}
               sections={sections}

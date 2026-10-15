@@ -34,6 +34,7 @@ export default async function TemplateLiveDemoPage({ params }: Params) {
   const config = template.demo;
   const theme = resolveTheme(template.defaultTheme, config.theme);
   const sections = { ...template.defaultSections, ...config.sections };
+  const cover = { ...template.defaultCover, ...config.cover };
 
   const [row] = await db
     .select({ sectionLabels: schema.templates.sectionLabels })
@@ -63,7 +64,7 @@ export default async function TemplateLiveDemoPage({ params }: Params) {
       </div>
 
       <InvitationRenderer
-        config={config}
+        config={{ ...config, cover }}
         theme={theme}
         layout={template.layout}
         sections={sections}

@@ -16,7 +16,7 @@ import { DecorationLayer } from "./sections/particles";
 export interface RendererProps {
   config: InvitationConfig;
   theme: ThemeTokens;
-  layout: "full_bleed" | "curtain" | "frame_device" | "slider";
+  layout: "full_bleed" | "curtain" | "frame_device" | "slider" | "paper";
   sections: Partial<Record<SectionId, boolean>>;
   guest?: GuestContext | null;
   wishes?: WishItem[];
@@ -139,6 +139,44 @@ export function InvitationRenderer({
             <div className="relative mx-auto h-6 overflow-hidden bg-[#111]">
               <span className="absolute top-1/2 left-1/2 h-2 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/70" />
             </div>
+            <div className="relative">
+              {cover}
+              {body}
+            </div>
+          </div>
+        </div>
+        {chrome}
+      </div>
+    );
+  }
+
+  // ── Paper layout: background gelap + kartu kertas terpusat ──
+  if (layout === "paper") {
+    return (
+      <div className="relative min-h-dvh overflow-hidden" style={themeStyle(theme)}>
+        <DecorationLayer theme={theme} />
+        <div className="flex min-h-dvh justify-center px-2 py-3 sm:px-4 sm:py-6">
+          <div
+            className="relative w-full max-w-[520px] overflow-hidden"
+            style={{
+              background: "var(--inv-surface)",
+              borderRadius: "var(--inv-radius)",
+              boxShadow:
+                "0 25px 60px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
+            }}
+          >
+            {/* Garis tepi kertas (subtle) */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-20"
+              style={{
+                border: "1px solid color-mix(in srgb, var(--inv-accent) 18%, transparent)",
+                borderRadius: "var(--inv-radius)",
+                margin: "8px",
+                width: "calc(100% - 16px)",
+                height: "calc(100% - 16px)",
+              }}
+            />
             <div className="relative">
               {cover}
               {body}

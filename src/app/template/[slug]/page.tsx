@@ -64,6 +64,7 @@ export default async function TemplateDetailPage({ params }: Params) {
   const config = template.demo;
   const theme = resolveTheme(template.defaultTheme, config.theme);
   const sections = { ...template.defaultSections, ...config.sections };
+  const cover = { ...template.defaultCover, ...config.cover };
   const visibleCount = SECTION_ORDER.filter((id) => sections[id] !== false).length;
 
   const [row] = await db
@@ -153,7 +154,7 @@ export default async function TemplateDetailPage({ params }: Params) {
 
         <div className="overflow-hidden rounded-2xl border shadow-sm">
           <InvitationRenderer
-            config={config}
+            config={{ ...config, cover }}
             theme={theme}
             layout={template.layout}
             sections={sections}

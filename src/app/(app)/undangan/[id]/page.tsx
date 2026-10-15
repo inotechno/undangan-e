@@ -48,6 +48,7 @@ export default async function EditorPage({ params }: Props) {
       layout: tpl.layout,
       defaultTheme: tpl.defaultTheme,
       defaultSections: tpl.defaultSections,
+      defaultCover: tpl.defaultCover,
       sectionLabels: (tplRow?.sectionLabels ?? {}) as SectionLabels,
     },
   };

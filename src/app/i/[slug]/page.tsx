@@ -97,6 +97,9 @@ export default async function InvitationPage({ params, searchParams }: Params & 
   const theme = resolveTheme(template?.defaultTheme, config.theme);
 
   const sections = { ...template?.defaultSections, ...config.sections };
+  // Merge cover config: default template → override undangan.
+  const cover = { ...template?.defaultCover, ...config.cover };
+  const configWithCover = { ...config, cover } as typeof config;
   const labels = (row.templateSectionLabels ?? {}) as Record<
     string,
     { eyebrow?: string; title?: string }
@@ -160,7 +163,7 @@ export default async function InvitationPage({ params, searchParams }: Params & 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <InvitationRenderer
-        config={config}
+        config={configWithCover}
         theme={theme}
         layout={template?.layout ?? "full_bleed"}
         sections={sections}

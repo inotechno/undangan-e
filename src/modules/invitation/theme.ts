@@ -25,6 +25,11 @@ export const FONT_PAIRS = {
     heading: `var(--font-sans), ui-sans-serif, system-ui, sans-serif`,
     body: `var(--font-sans), ui-sans-serif, system-ui, sans-serif`,
   },
+  /** Script/calligraphy — untuk judul cover gaya elegan. */
+  script: {
+    heading: `var(--font-script), "Great Vibes", cursive, Georgia, serif`,
+    body: `var(--font-sans), ui-sans-serif, system-ui, sans-serif`,
+  },
 } as const;
 
 export type FontPairId = keyof typeof FONT_PAIRS;

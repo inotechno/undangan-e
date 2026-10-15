@@ -233,6 +233,113 @@ export function AcaraPanel({ invitationId, config, mutate }: PanelProps) {
   );
 }
 
+/* ── Tab: Sampul ─────────────────────────────────────────── */
+
+const COVER_STYLE_OPTIONS = [
+  { value: "photo_overlay", label: "Foto penuh + overlay" },
+  { value: "framed", label: "Foto berbingkai" },
+  { value: "minimal", label: "Minimal (teks saja)" },
+];
+
+const FRAME_SHAPE_OPTIONS = [
+  { value: "circle", label: "Lingkaran" },
+  { value: "arch", label: "Arch (lengkung)" },
+  { value: "rounded", label: "Persegi membulat" },
+];
+
+const ORIENTATION_OPTIONS = [
+  { value: "horizontal", label: "Horizontal (A & B)" },
+  { value: "vertical", label: "Vertikal (A di atas B)" },
+];
+
+export function CoverPanel({ config, mutate }: PanelProps) {
+  const cover = config.cover ?? {};
+
+  function setCover(patch: Partial<NonNullable<InvitationConfig["cover"]>>) {
+    mutate((c) => {
+      c.cover = { ...c.cover, ...patch };
+    });
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-sm font-semibold">Tampilan sampul</p>
+        <p className="text-muted-warm mt-0.5 text-[11px]">
+          Atur gaya cover, foto berbingkai, orientasi nama, dan teks tamu.
+        </p>
+      </div>
+
+      <SelectField
+        label="Gaya sampul"
+        value={cover.style ?? "photo_overlay"}
+        onChange={(v) => setCover({ style: v as NonNullable<InvitationConfig["cover"]>["style"] })}
+        options={COVER_STYLE_OPTIONS}
+      />
+
+      {cover.style === "framed" ? (
+        <SelectField
+          label="Bentuk frame foto"
+          value={cover.frameShape ?? "circle"}
+          onChange={(v) =>
+            setCover({ frameShape: v as NonNullable<InvitationConfig["cover"]>["frameShape"] })
+          }
+          options={FRAME_SHAPE_OPTIONS}
+        />
+      ) : null}
+
+      <SelectField
+        label="Orientasi nama"
+        value={cover.nameOrientation ?? "horizontal"}
+        onChange={(v) =>
+          setCover({ nameOrientation: v as NonNullable<InvitationConfig["cover"]>["nameOrientation"] })
+        }
+        options={ORIENTATION_OPTIONS}
+      />
+
+      <TextAreaField
+        label="Kalimat pembuka (opsional)"
+        value={cover.openingText ?? ""}
+        onChange={(v) => setCover({ openingText: v || undefined })}
+        placeholder="Tanpa mengurangi rasa hormat, kami mengundang…"
+        hint="Tampil di bawah tanggal pada sampul."
+        rows={3}
+      />
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TextField
+          label="Kalimat sebelum nama tamu"
+          value={cover.guestPreText ?? ""}
+          onChange={(v) => setCover({ guestPreText: v || undefined })}
+          placeholder="Kepada Yth."
+        />
+        <TextField
+          label="Kalimat setelah nama tamu (opsional)"
+          value={cover.guestPostText ?? ""}
+          onChange={(v) => setCover({ guestPostText: v || undefined })}
+          placeholder="di tempat"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs font-semibold">Jarak vertikal sampul</Label>
+        <p className="text-muted-warm mt-0.5 mb-1.5 text-[11px]">
+          Tambah ruang kosong di atas & bawah konten cover (0–100).
+        </p>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={cover.spacing ?? 0}
+          onChange={(e) => setCover({ spacing: Number(e.target.value) })}
+          className="w-full accent-teal"
+        />
+        <p className="text-muted-warm mt-1 text-[11px]">{cover.spacing ?? 0}</p>
+      </div>
+    </div>
+  );
+}
+
 /* ── Tab: Jadwal ─────────────────────────────────────────── */
 
 export function JadwalPanel({ config, mutate }: PanelProps) {

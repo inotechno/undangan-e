@@ -21,7 +21,7 @@ export interface TemplateEditInitial {
   sectionLabels: SectionLabels;
   status: "active" | "hidden";
   sort: number;
-  layout: "full_bleed" | "curtain" | "frame_device" | "slider";
+  layout: "full_bleed" | "curtain" | "frame_device" | "slider" | "paper";
   categories: { id: string; name: string; slug: string }[];
 }
 

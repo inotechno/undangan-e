@@ -38,6 +38,7 @@ export default async function TemplateShotPage({ params }: Params) {
   const config = template.demo;
   const theme = resolveTheme(template.defaultTheme, config.theme);
   const sections = { ...template.defaultSections, ...config.sections };
+  const cover = { ...template.defaultCover, ...config.cover };
   const labels = (row?.sectionLabels ?? {}) as SectionLabels;
 
   return (
@@ -65,7 +66,7 @@ export default async function TemplateShotPage({ params }: Params) {
       >
         <div className="absolute inset-0 overflow-hidden" style={{ transform: "translateZ(0)" }}>
           <InvitationRenderer
-            config={config}
+            config={{ ...config, cover }}
             theme={theme}
             layout={template.layout}
             sections={sections}

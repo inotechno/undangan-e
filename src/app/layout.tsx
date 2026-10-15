@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Montserrat } from "next/font/google";
+import { Plus_Jakarta_Sans, Montserrat, Great_Vibes } from "next/font/google";
 import { env } from "@/core/config";
 import "./globals.css";
 
@@ -13,6 +13,13 @@ const heading = Montserrat({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+  display: "swap",
+});
+
+const script = Great_Vibes({
+  variable: "--font-script",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -33,7 +40,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${sans.variable} ${heading.variable} h-full`}>
+    <html lang="id" className={`${sans.variable} ${heading.variable} ${script.variable} h-full`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

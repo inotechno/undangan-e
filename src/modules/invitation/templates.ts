@@ -7,11 +7,13 @@ export interface TemplateDefinition {
   category: string;
   description: string;
   signature: string;
-  layout: "full_bleed" | "curtain" | "frame_device" | "slider";
+  layout: "full_bleed" | "curtain" | "frame_device" | "slider" | "paper";
   previewImage: string;
   defaultTheme: Partial<ThemeTokens>;
   fontPair: FontPairId;
   defaultSections: Partial<Record<SectionId, boolean>>;
+  /** Konfigurasi cover default (opsional). */
+  defaultCover?: InvitationConfig["cover"];
   demo: InvitationConfig;
 }
 
@@ -968,6 +970,255 @@ export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition> = {
         { image: img("photo-1527529482837-4698179dc6ce", 900), caption: "Networking" },
       ],
       gift: false,
+    }),
+  },
+
+  /* ── Premium paper-style templates ─────────────────────── */
+
+  "royal-maroon": {
+    slug: "royal-maroon",
+    name: "Royal Maroon",
+    category: "Premium",
+    description:
+      "Kertas kaya maroon dengan bunga kertas emas, foto berbingkai lingkaran, dan font calligraphy — kesan mewah & sakral.",
+    signature: "Maroon pekat, paper-flower, ring emas, calligraphy",
+    layout: "paper",
+    previewImage: "/templates/royal-maroon.png",
+    fontPair: "script",
+    defaultTheme: {
+      palette: {
+        bg: "#5C0E0E",
+        surface: "#FFF8F0",
+        text: "#3D1A1A",
+        accent: "#8B1A1A",
+        accentSoft: "#F5E6D3",
+      },
+      fonts: { ...FONT_PAIRS.script, body: FONT_PAIRS.serif.body },
+      radius: 12,
+      decorations: "floral",
+      motion: "elegant",
+      particles: "sparkles",
+    },
+    defaultCover: {
+      style: "framed",
+      frameShape: "circle",
+      nameOrientation: "vertical",
+      guestPreText: "Kepada Yth. Bapak/Ibu/Saudara/i",
+      openingText:
+        "Tanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu dan Saudara/i untuk menghadiri acara kami.",
+    },
+    defaultSections: BASE_SECTIONS,
+    demo: demoConfig({
+      type: "khitanan",
+      celebrant: { name: "Restu Ikhwanul Aziz", age: 7 },
+      host: { name: "Bapak Sapturi & Ibu Imah Rohmawati", role: "Orang Tua" },
+      date: "2026-11-01T08:00:00+07:00",
+      photo: img("photo-1511895426328-dc8714191300"),
+      seoTitle: "Tasyakuran Khitan Restu Ikhwanul Aziz",
+      seoDescription:
+        "Undangan Tasyakuran Khitan Restu Ikhwanul Aziz, Minggu 1 November 2026 di Serang, Banten.",
+      schedules: [
+        {
+          title: "Tasyakuran Khitan",
+          start: "2026-11-01T08:00:00+07:00",
+          end: "2026-11-01T12:00:00+07:00",
+          venue: "Kediaman Keluarga",
+          address: "Link. Ujung Tebu RT. 002/001, Kel. Sukajaya, Kec. Curug, Kota Serang, Banten",
+          mapUrl: "https://maps.google.com/?q=Sukajaya+Serang+Banten",
+        },
+      ],
+      story: [
+        {
+          year: "Sabtu",
+          title: "Ceramah Agama & Qori Qoriah",
+          text: "Malam sebelum khitanan diisi dengan ceramah agama dan lantunan qori-qoriah.",
+          image: img("photo-1519741497674-611481863552", 800),
+        },
+        {
+          year: "Minggu",
+          title: "Gambus Modern & Syukuran",
+          text: "Puncak acara tasyakuran khitan dengan Gambus Modern dan doa bersama.",
+          image: img("photo-1464366400600-7168b8af9bc3", 800),
+        },
+      ],
+      gallery: [
+        { image: img("photo-1511895426328-dc8714191300", 900), caption: "Keluarga" },
+        { image: img("photo-1519741497674-611481863552", 900), caption: "Bersama" },
+        { image: img("photo-1464366400600-7168b8af9bc3", 900), caption: "Bahagia" },
+      ],
+      giftAccounts: [{ bank: "BRI", number: "802101009926530", holder: "SAPTURI" }],
+    }),
+  },
+  "emerald-royal": {
+    slug: "emerald-royal",
+    name: "Emerald Royal",
+    category: "Premium",
+    description:
+      "Kertas krem dengan aksen zamrud emas, ornamen geometri Islam, dan foto berbingkai arch — cocok untuk acara islami.",
+    signature: "Zamrud emas, arch frame, ornamen geometric",
+    layout: "paper",
+    previewImage: "/templates/emerald-royal.png",
+    fontPair: "script",
+    defaultTheme: {
+      palette: {
+        bg: "#0E4D3C",
+        surface: "#FEFCF5",
+        text: "#1A3A30",
+        accent: "#0E7C6B",
+        accentSoft: "#E8F5EE",
+      },
+      fonts: { ...FONT_PAIRS.script, body: FONT_PAIRS.serif.body },
+      radius: 10,
+      decorations: "geometric",
+      motion: "elegant",
+      particles: "sparkles",
+    },
+    defaultCover: {
+      style: "framed",
+      frameShape: "arch",
+      nameOrientation: "vertical",
+      guestPreText: "Kepada Yth. Bapak/Ibu/Saudara/i",
+      openingText:
+        "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu untuk menghadiri acara.",
+    },
+    defaultSections: BASE_SECTIONS,
+    demo: demoConfig({
+      type: "pernikahan",
+      couple: {
+        brideName: "Aisyah Nur Haliza",
+        groomName: "Muhammad Faisal Rahman",
+        brideParents: "Bapak H. Ahmad Fauzi & Ibu Hj. Siti Marlina",
+        groomParents: "Bapak H. Rahman Hakim & Ibu Hj. Nurhayati",
+        hashtag: "#AisyahFaisal",
+      },
+      date: "2027-06-12T08:00:00+07:00",
+      photo: img("photo-1519741497674-611481863552"),
+      seoTitle: "Pernikahan Aisyah & Faisal",
+      seoDescription:
+        "Undangan pernikahan Aisyah Nur Haliza & Muhammad Faisal Rahman, Sabtu 12 Juni 2027.",
+      schedules: [
+        {
+          title: "Akad Nikah",
+          start: "2027-06-12T08:00:00+07:00",
+          end: "2027-06-12T10:00:00+07:00",
+          venue: "Masjid Raya Baiturrahman",
+          address: "Jl. Merdeka, Bandung",
+          mapUrl: "https://maps.google.com/?q=Masjid+Raya+Bandung",
+        },
+        {
+          title: "Resepsi",
+          start: "2027-06-12T11:00:00+07:00",
+          end: "2027-06-12T14:00:00+07:00",
+          venue: "Grand Ballroom Hotel Savoy Homann",
+          address: "Jl. Asia Afrika No. 8, Bandung",
+          mapUrl: "https://maps.google.com/?q=Hotel+Savoy+Homann+Bandung",
+        },
+      ],
+      story: [
+        {
+          year: "2019",
+          title: "Pertama Bertemu",
+          text: "Kami bertemu di kajian mingguan dan mulai saling mengenal.",
+          image: img("photo-1522673607200-164d1b6ce486", 800),
+        },
+        {
+          year: "2023",
+          title: "Lamaran",
+          text: "Dengan restu kedua keluarga, kami mengikat janji lamaran.",
+          image: img("photo-1529636798458-92182e662485", 800),
+        },
+        {
+          year: "2027",
+          title: "Akad Nikah",
+          text: "Insya Allah kami akan melangsungkan akad nikah di masjid raya.",
+          image: img("photo-1511285560929-80b456fea0bc", 800),
+        },
+      ],
+      gallery: [
+        { image: img("photo-1519741497674-611481863552", 900), caption: "Engagement" },
+        { image: img("photo-1522673607200-164d1b6ce486", 900), caption: "Pre-wedding" },
+        { image: img("photo-1529636798458-92182e662485", 900), caption: "Bahagia" },
+        { image: img("photo-1511285560929-80b456fea0bc", 900), caption: "Bersama" },
+      ],
+    }),
+  },
+  "midnight-gold": {
+    slug: "midnight-gold",
+    name: "Midnight Gold",
+    category: "Premium",
+    description:
+      "Kertas ivory di atas background midnight navy, aksen emas mewah, dan photo frame elegant — kesan royal modern.",
+    signature: "Midnight navy, ivory paper, gold accent",
+    layout: "paper",
+    previewImage: "/templates/midnight-gold.png",
+    fontPair: "script",
+    defaultTheme: {
+      palette: {
+        bg: "#0C1A2E",
+        surface: "#FDF8EF",
+        text: "#1C2B3D",
+        accent: "#B8860B",
+        accentSoft: "#F5EDDA",
+      },
+      fonts: { ...FONT_PAIRS.script, body: FONT_PAIRS.serif.body },
+      radius: 8,
+      decorations: "ornament",
+      motion: "elegant",
+      particles: "sparkles",
+    },
+    defaultCover: {
+      style: "framed",
+      frameShape: "rounded",
+      nameOrientation: "horizontal",
+      guestPreText: "Kepada Yth.",
+      openingText:
+        "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.",
+    },
+    defaultSections: BASE_SECTIONS,
+    demo: demoConfig({
+      type: "tunangan",
+      couple: {
+        brideName: "Kirana Dewi Anggraini",
+        groomName: "Raka Aditya Pratama",
+        brideParents: "Bapak Ir. Budi Santoso & Ibu Dra. Endang Wulandari",
+        groomParents: "Bapak Drs. Agus Prasetyo & Ibu Rina Kartika",
+        hashtag: "#KiranaRaka",
+      },
+      date: "2027-02-14T10:00:00+07:00",
+      photo: img("photo-1529636798458-92182e662485"),
+      seoTitle: "Tunangan Kirana & Raka",
+      seoDescription:
+        "Undangan Tunangan Kirana Dewi Anggraini & Raka Aditya Pratama, Minggu 14 Februari 2027.",
+      schedules: [
+        {
+          title: "Akad Tunangan",
+          start: "2027-02-14T10:00:00+07:00",
+          end: "2027-02-14T13:00:00+07:00",
+          venue: "The Ritz-Carlton Ballroom",
+          address: "Jl. Prof. DR. Satrio, Jakarta Selatan",
+          mapUrl: "https://maps.google.com/?q=The+Ritz-Carlton+Jakarta",
+        },
+      ],
+      story: [
+        {
+          year: "2021",
+          title: "Bertemu di Kampus",
+          text: "Kami bertemu dalam sebuah organisasi mahasiswa dan mulai dekat.",
+          image: img("photo-1522673607200-164d1b6ce486", 800),
+        },
+        {
+          year: "2025",
+          title: "Melamar",
+          text: "Dengan restu orang tua, Raka melamar Kirana dalam suasana intimate.",
+          image: img("photo-1511285560929-80b456fea0bc", 800),
+        },
+      ],
+      gallery: [
+        { image: img("photo-1529636798458-92182e662485", 900), caption: "Bersama" },
+        { image: img("photo-1522673607200-164d1b6ce486", 900), caption: "Kencan" },
+        { image: img("photo-1511285560929-80b456fea0bc", 900), caption: "Lamaran" },
+      ],
+      giftAccounts: [{ bank: "BCA", number: "1234567890", holder: "Kirana Dewi" }],
     }),
   },
 };

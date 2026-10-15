@@ -89,8 +89,41 @@ export const DEFAULT_EYEBROWS: Record<EventType, string> = {
   syukuran: "Syukuran",
 };
 
-export const LAYOUT_FAMILIES = ["full_bleed", "curtain", "frame_device", "slider"] as const;
+export const LAYOUT_FAMILIES = ["full_bleed", "curtain", "frame_device", "slider", "paper"] as const;
 export type LayoutFamily = (typeof LAYOUT_FAMILIES)[number];
+
+/* ── Cover config (opsional — semua punya default) ───────── */
+
+export const COVER_STYLES = ["photo_overlay", "framed", "minimal"] as const;
+export type CoverStyle = (typeof COVER_STYLES)[number];
+
+export const COVER_FRAME_SHAPES = ["circle", "arch", "rounded"] as const;
+export type CoverFrameShape = (typeof COVER_FRAME_SHAPES)[number];
+
+export const NAME_ORIENTATIONS = ["horizontal", "vertical"] as const;
+export type NameOrientation = (typeof NAME_ORIENTATIONS)[number];
+
+export const coverConfigSchema = z
+  .object({
+    /** Gaya cover: photo full-bleed, foto berbingkai, atau minimal teks. */
+    style: z.enum(COVER_STYLES).default("photo_overlay"),
+    /** Bentuk frame foto (untuk style "framed"). */
+    frameShape: z.enum(COVER_FRAME_SHAPES).default("circle"),
+    /** Orientasi nama: horizontal ("A & B") atau vertical (A di atas B). */
+    nameOrientation: z.enum(NAME_ORIENTATIONS).default("horizontal"),
+    /** Kalimat sebelum nama tamu (default: "Kepada Yth."). */
+    guestPreText: z.string().max(200).optional(),
+    /** Kalimat setelah nama tamu. */
+    guestPostText: z.string().max(200).optional(),
+    /** Kalimat pembuka setelah nama (opsional). */
+    openingText: z.string().max(500).optional(),
+    /** Spacing vertikal ekstra (0–100, unit rem/10). */
+    spacing: z.number().int().min(0).max(100).optional(),
+    /** Teks tombol buka undangan. */
+    buttonText: z.string().max(40).optional(),
+  })
+  .partial()
+  .default({});
 
 /* ── Theme tokens (docs/06 §2.2) ─────────────────────────── */
 
@@ -223,6 +256,7 @@ export const invitationConfigSchema = z.object({
     .default({ enabled: false, autoplayAfterOpen: false }),
   sections: z.partialRecord(z.enum(SECTION_IDS), z.boolean()).default({}),
   theme: themeTokensSchema.default({ palette: {}, fonts: {} }),
+  cover: coverConfigSchema,
 });
 
 export type InvitationConfig = z.infer<typeof invitationConfigSchema>;

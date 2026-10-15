@@ -28,6 +28,7 @@ const CATEGORIES: Array<{ slug: string; nameId: string; sort: number }> = [
   { slug: "keluarga", nameId: "Keluarga", sort: 6 },
   { slug: "seminar", nameId: "Seminar", sort: 7 },
   { slug: "syukuran", nameId: "Syukuran", sort: 8 },
+  { slug: "premium", nameId: "Premium", sort: 9 },
 ];
 
 async function seedSettings() {
