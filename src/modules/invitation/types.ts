@@ -2,17 +2,24 @@ import { z } from "zod";
 
 export const SECTION_IDS = [
   "cover",
+  "couple",
+  "doa",
   "event_info",
   "countdown",
-  "couple",
-  "gallery",
-  "story",
   "schedule_maps",
+  "info",
+  "story",
+  "gallery",
   "gift",
+  "kado",
+  "video",
+  "live",
   "rsvp",
   "guestbook",
   "qr_pass",
   "wishes_list",
+  "prokes",
+  "adab",
   "closing",
   "music_player",
 ] as const;
@@ -28,40 +35,58 @@ export interface SectionLabel {
 
 export type SectionLabels = Partial<Record<SectionId, SectionLabel>>;
 
-/** Judul bawaan tiap section — dipakai bila admin belum mengatur label. */
+/** Judul bawaan tiap section — dipakai bila user/admin belum mengatur label. */
 export const SECTION_DEFAULT_LABELS: SectionLabels = {
+  doa: { eyebrow: "Bismillah", title: "Doa Pembuka" },
   event_info: { eyebrow: "Save the Date", title: "Waktu & Tempat" },
   schedule_maps: { eyebrow: "Rangkaian Acara", title: "Jadwal & Lokasi" },
+  info: { eyebrow: "Informasi", title: "Info Tambahan" },
   story: { eyebrow: "Kisah Kami", title: "Perjalanan Cinta" },
   gallery: { eyebrow: "Momen Bahagia", title: "Galeri" },
   gift: { eyebrow: "Tanda Kasih", title: "Wedding Gift" },
+  kado: { eyebrow: "Kado", title: "Kirim Kado" },
+  video: { eyebrow: "Video", title: "Video Kami" },
+  live: { eyebrow: "Live Streaming", title: "Siaran Langsung" },
   rsvp: { eyebrow: "Konfirmasi Kehadiran", title: "RSVP" },
   guestbook: { eyebrow: "Ucapan", title: "Buku Tamu" },
   qr_pass: { eyebrow: "Tiket Masuk", title: "Kartu QR Tamu" },
   wishes_list: { eyebrow: "Doa & Harapan", title: "Ucapan Tamu" },
+  prokes: { eyebrow: "Protokol Kesehatan", title: "Prokes" },
+  adab: { eyebrow: "Adab", title: "Adab Tamu" },
 };
 
-/** Gabungkan default dengan override (dari template/admin). */
-export function sectionLabel(id: SectionId, labels?: SectionLabels | null): Required<SectionLabel> {
+/** Gabungkan default → template → user (prioritas: user > template > default). */
+export function sectionLabel(
+  id: SectionId,
+  templateLabels?: SectionLabels | null,
+  userLabels?: SectionLabels | null,
+): Required<SectionLabel> {
   const def = SECTION_DEFAULT_LABELS[id];
-  const ov = labels?.[id];
+  const ov = userLabels?.[id] || templateLabels?.[id];
   return {
     eyebrow: ov?.eyebrow || def?.eyebrow || "",
     title: ov?.title || def?.title || "",
   };
 }
 
-/** Section yang judul/eyebrow-nya bisa diedit admin. */
+/** Section yang judul/eyebrow-nya bisa diedit. */
 export const LABELABLE_SECTIONS: SectionId[] = [
+  "doa",
   "event_info",
   "schedule_maps",
+  "info",
   "story",
   "gallery",
   "gift",
+  "kado",
+  "video",
+  "live",
   "rsvp",
   "guestbook",
   "qr_pass",
   "wishes_list",
+  "prokes",
+  "adab",
 ];
 
 export const EVENT_TYPES = [
@@ -208,6 +233,54 @@ export const giftAccountSchema = z.object({
   holder: z.string(),
 });
 
+export const infoItemSchema = z.object({
+  icon: z.string().optional(),
+  title: z.string(),
+  text: z.string(),
+});
+
+export const kadoConfigSchema = z
+  .object({
+    recipient: z.string().optional(),
+    address: z.string().optional(),
+    notes: z.string().optional(),
+  })
+  .default({});
+
+export const videoConfigSchema = z
+  .object({
+    url: z.string().optional(),
+    title: z.string().optional(),
+  })
+  .default({});
+
+export const liveConfigSchema = z
+  .object({
+    url: z.string().optional(),
+    title: z.string().optional(),
+    platform: z.enum(["youtube", "zoom", "facebook", "other"]).default("youtube"),
+  })
+  .partial()
+  .default({});
+
+export const doaConfigSchema = z
+  .object({
+    text: z.string().max(1000).optional(),
+  })
+  .default({});
+
+export const prokesConfigSchema = z
+  .object({
+    items: z.array(z.string().max(300)).default([]),
+  })
+  .default({ items: [] });
+
+export const adabConfigSchema = z
+  .object({
+    items: z.array(z.string().max(300)).default([]),
+  })
+  .default({ items: [] });
+
 export const invitationConfigSchema = z.object({
   seo: z
     .object({
@@ -255,6 +328,17 @@ export const invitationConfigSchema = z.object({
     })
     .default({ enabled: false, autoplayAfterOpen: false }),
   sections: z.partialRecord(z.enum(SECTION_IDS), z.boolean()).default({}),
+  /** Urutan section — jika kosong pakai SECTION_ORDER bawaan. */
+  sectionOrder: z.array(z.enum(SECTION_IDS)).optional(),
+  /** Label judul section yang diedit user (override label template). */
+  sectionLabels: z.partialRecord(z.enum(SECTION_IDS), z.object({ eyebrow: z.string().optional(), title: z.string().optional() })).default({}),
+  doa: doaConfigSchema,
+  info: z.object({ items: z.array(infoItemSchema).default([]) }).default({ items: [] }),
+  kado: kadoConfigSchema,
+  video: videoConfigSchema,
+  live: liveConfigSchema,
+  prokes: prokesConfigSchema,
+  adab: adabConfigSchema,
   theme: themeTokensSchema.default({ palette: {}, fonts: {} }),
   cover: coverConfigSchema,
 });

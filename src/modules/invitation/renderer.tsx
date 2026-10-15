@@ -30,15 +30,22 @@ export interface RendererProps {
 /** Urutan baku section dalam undangan (docs/06). */
 export const SECTION_ORDER: SectionId[] = [
   "couple",
+  "doa",
   "event_info",
   "countdown",
   "schedule_maps",
+  "info",
   "story",
   "gallery",
   "gift",
+  "kado",
+  "video",
+  "live",
   "rsvp",
   "guestbook",
   "wishes_list",
+  "prokes",
+  "adab",
   "qr_pass",
   "closing",
 ];
@@ -47,16 +54,23 @@ export const SECTION_ORDER: SectionId[] = [
 export const SECTION_LABELS: Record<SectionId, string> = {
   cover: "Sampul",
   couple: "Mempelai",
+  doa: "Doa",
   event_info: "Waktu & Tempat",
   countdown: "Hitung Mundur",
   schedule_maps: "Jadwal Acara",
+  info: "Info",
   story: "Kisah Kami",
   gallery: "Galeri",
-  gift: "Wedding Gift",
+  gift: "Hadiah",
+  kado: "Kado",
+  video: "Video",
+  live: "Live",
   rsvp: "RSVP",
   guestbook: "Buku Tamu",
   qr_pass: "Kartu QR",
   wishes_list: "Ucapan",
+  prokes: "Prokes",
+  adab: "Adab",
   closing: "Penutup",
   music_player: "Musik",
 };
@@ -87,13 +101,17 @@ export function InvitationRenderer({
   labels,
   slug,
 }: RendererProps) {
-  const ctx: SectionContext = { config, theme, guest, wishes, mode, labels, slug };
+  const userLabels = config.sectionLabels ?? null;
+  const ctx: SectionContext = { config, theme, guest, wishes, mode, labels, userLabels, slug };
   const visible = (id: SectionId) => sections[id] !== false;
+
+  // Urutan: config.sectionOrder → SECTION_ORDER bawaan.
+  const order = (config.sectionOrder?.length ? config.sectionOrder : SECTION_ORDER) as SectionId[];
 
   const cover = visible("cover") ? renderSection("cover", ctx) : null;
   const body = (
     <>
-      {SECTION_ORDER.filter(visible).map((id) => (
+      {order.filter(visible).map((id) => (
         <div key={id}>{renderSection(id, ctx)}</div>
       ))}
     </>
@@ -104,9 +122,13 @@ export function InvitationRenderer({
     ? `${couple.brideName} & ${couple.groomName}`
     : (config.event.celebrant?.name ?? config.event.host?.name ?? config.event.title ?? undefined);
 
+  const navLabel = (id: SectionId) => {
+    const u = userLabels?.[id]?.title;
+    return u || SECTION_LABELS[id];
+  };
   const menuItems = [
     ...(visible("cover") ? [{ id: "cover", label: SECTION_LABELS.cover }] : []),
-    ...SECTION_ORDER.filter(visible).map((id) => ({ id, label: SECTION_LABELS[id] })),
+    ...order.filter(visible).map((id) => ({ id, label: navLabel(id) })),
   ];
 
   const chrome = (

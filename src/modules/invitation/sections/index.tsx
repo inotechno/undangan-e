@@ -23,6 +23,8 @@ export interface SectionContext {
   wishes?: WishItem[];
   mode?: "live" | "preview";
   labels?: SectionLabels | null;
+  /** Label judul section dari config user (override label template). */
+  userLabels?: SectionLabels | null;
   /** Slug undangan publik (dipakai form RSVP/ucapan untuk POST /api/i/[slug]/…). */
   slug?: string;
 }
@@ -410,7 +412,7 @@ function Couple({ ctx }: { ctx: SectionContext }) {
 function EventInfo({ ctx }: { ctx: SectionContext }) {
   const { config } = ctx;
   const date = new Date(config.event.date);
-  const lb = sectionLabel("event_info", ctx.labels);
+  const lb = sectionLabel("event_info", ctx.labels, ctx.userLabels);
 
   return (
     <SectionShell id="event_info" className="relative">
@@ -472,7 +474,7 @@ function ScheduleMaps({ ctx }: { ctx: SectionContext }) {
   const { config, theme } = ctx;
   const schedules = config.event.schedules;
   if (schedules.length === 0) return null;
-  const lb = sectionLabel("schedule_maps", ctx.labels);
+  const lb = sectionLabel("schedule_maps", ctx.labels, ctx.userLabels);
 
   return (
     <SectionShell id="schedule_maps">
@@ -549,7 +551,7 @@ function ScheduleMaps({ ctx }: { ctx: SectionContext }) {
 function Story({ ctx }: { ctx: SectionContext }) {
   const { config, theme } = ctx;
   if (config.story.length === 0) return null;
-  const lb = sectionLabel("story", ctx.labels);
+  const lb = sectionLabel("story", ctx.labels, ctx.userLabels);
 
   return (
     <SectionShell id="story">
@@ -594,7 +596,7 @@ function Story({ ctx }: { ctx: SectionContext }) {
 function Gallery({ ctx }: { ctx: SectionContext }) {
   const { config } = ctx;
   if (config.gallery.length === 0) return null;
-  const lb = sectionLabel("gallery", ctx.labels);
+  const lb = sectionLabel("gallery", ctx.labels, ctx.userLabels);
 
   return (
     <SectionShell id="gallery">
@@ -632,7 +634,7 @@ function Gallery({ ctx }: { ctx: SectionContext }) {
 function GiftSection({ ctx }: { ctx: SectionContext }) {
   const { config } = ctx;
   if (!config.gift.enabled || config.gift.accounts.length === 0) return null;
-  const lb = sectionLabel("gift", ctx.labels);
+  const lb = sectionLabel("gift", ctx.labels, ctx.userLabels);
 
   return (
     <SectionShell id="gift">
@@ -691,7 +693,7 @@ function GuestGate({ ctx, children, hint }: { ctx: SectionContext; children: Rea
 }
 
 function RSVP({ ctx }: { ctx: SectionContext }) {
-  const lb = sectionLabel("rsvp", ctx.labels);
+  const lb = sectionLabel("rsvp", ctx.labels, ctx.userLabels);
   return (
     <SectionShell id="rsvp">
       <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
@@ -705,7 +707,7 @@ function RSVP({ ctx }: { ctx: SectionContext }) {
 }
 
 function Guestbook({ ctx }: { ctx: SectionContext }) {
-  const lb = sectionLabel("guestbook", ctx.labels);
+  const lb = sectionLabel("guestbook", ctx.labels, ctx.userLabels);
   return (
     <SectionShell id="guestbook">
       <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
@@ -719,7 +721,7 @@ function Guestbook({ ctx }: { ctx: SectionContext }) {
 }
 
 function QrPass({ ctx }: { ctx: SectionContext }) {
-  const lb = sectionLabel("qr_pass", ctx.labels);
+  const lb = sectionLabel("qr_pass", ctx.labels, ctx.userLabels);
   return (
     <GuestGate ctx={ctx} hint="Kartu QR tamu tersedia melalui tautan personal Anda.">
       <SectionShell id="qr_pass">
@@ -760,6 +762,196 @@ function WishesList({ ctx }: { ctx: SectionContext }) {
   );
 }
 
+/* ── Doa ─────────────────────────────────────────────────── */
+
+function Doa({ ctx }: { ctx: SectionContext }) {
+  const text = ctx.config.doa.text;
+  if (!text) return null;
+  const lb = sectionLabel("doa", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="doa" className="text-center">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <ScrollReveal>
+        <p className="mx-auto max-w-lg text-sm leading-loose opacity-80 italic" style={{ fontFamily: "var(--inv-body)" }}>
+          {text}
+        </p>
+      </ScrollReveal>
+    </SectionShell>
+  );
+}
+
+/* ── Info ────────────────────────────────────────────────── */
+
+function Info({ ctx }: { ctx: SectionContext }) {
+  const items = ctx.config.info.items;
+  if (items.length === 0) return null;
+  const lb = sectionLabel("info", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="info">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <div className="space-y-3">
+        {items.map((item, i) => (
+          <ScrollReveal key={i}>
+            <div
+              className="flex items-start gap-3 rounded-[var(--inv-radius)] border p-4"
+              style={{ borderColor: "var(--inv-accent-soft)", background: "var(--inv-surface)" }}
+            >
+              <div className="mt-0.5 shrink-0">
+                <Sparkles className="size-4" style={{ color: "var(--inv-accent)" }} aria-hidden />
+              </div>
+              <div>
+                <p className="text-sm font-bold">{item.title}</p>
+                <p className="mt-0.5 text-sm leading-relaxed opacity-80">{item.text}</p>
+              </div>
+            </div>
+          </ScrollReveal>
+        ))}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ── Kado ────────────────────────────────────────────────── */
+
+function Kado({ ctx }: { ctx: SectionContext }) {
+  const kado = ctx.config.kado;
+  if (!kado.address && !kado.recipient) return null;
+  const lb = sectionLabel("kado", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="kado">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <ScrollReveal>
+        <div
+          className="rounded-[var(--inv-radius)] border p-5 text-center"
+          style={{ borderColor: "var(--inv-accent-soft)", background: "var(--inv-surface)" }}
+        >
+          <Gift className="mx-auto size-6" style={{ color: "var(--inv-accent)" }} aria-hidden />
+          {kado.recipient ? <p className="mt-3 text-sm font-bold">Kepada: {kado.recipient}</p> : null}
+          {kado.address ? <p className="mt-1 text-sm leading-relaxed opacity-80">{kado.address}</p> : null}
+          {kado.notes ? <p className="mt-2 text-xs opacity-60">{kado.notes}</p> : null}
+        </div>
+      </ScrollReveal>
+    </SectionShell>
+  );
+}
+
+/* ── Video ───────────────────────────────────────────────── */
+
+function toYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m?.[1] ?? null;
+}
+
+function Video({ ctx }: { ctx: SectionContext }) {
+  const video = ctx.config.video;
+  if (!video.url) return null;
+  const ytId = toYouTubeId(video.url);
+  const lb = sectionLabel("video", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="video">
+      <SectionHeading eyebrow={lb.eyebrow} title={video.title || lb.title} />
+      <ScrollReveal>
+        <div className="overflow-hidden rounded-[var(--inv-radius)] border" style={{ borderColor: "var(--inv-accent-soft)" }}>
+          {ytId ? (
+            <div className="relative aspect-video">
+              <iframe
+                src={`https://www.youtube.com/embed/${ytId}`}
+                title={video.title || "Video"}
+                className="absolute inset-0 h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <video src={video.url} controls className="w-full" />
+          )}
+        </div>
+      </ScrollReveal>
+    </SectionShell>
+  );
+}
+
+/* ── Live ────────────────────────────────────────────────── */
+
+function Live({ ctx }: { ctx: SectionContext }) {
+  const live = ctx.config.live;
+  if (!live.url) return null;
+  const lb = sectionLabel("live", ctx.labels, ctx.userLabels);
+  const ytId = toYouTubeId(live.url);
+  return (
+    <SectionShell id="live">
+      <SectionHeading eyebrow={lb.eyebrow} title={live.title || lb.title} />
+      <ScrollReveal>
+        <div className="overflow-hidden rounded-[var(--inv-radius)] border" style={{ borderColor: "var(--inv-accent-soft)" }}>
+          {ytId ? (
+            <div className="relative aspect-video">
+              <iframe
+                src={`https://www.youtube.com/embed/${ytId}`}
+                title={live.title || "Live"}
+                className="absolute inset-0 h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-video items-center justify-center" style={{ background: "var(--inv-accent-soft)" }}>
+              <a href={live.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold underline" style={{ color: "var(--inv-accent)" }}>
+                Buka siaran langsung
+              </a>
+            </div>
+          )}
+        </div>
+      </ScrollReveal>
+    </SectionShell>
+  );
+}
+
+/* ── Prokes ──────────────────────────────────────────────── */
+
+function Prokes({ ctx }: { ctx: SectionContext }) {
+  const items = ctx.config.prokes.items;
+  if (items.length === 0) return null;
+  const lb = sectionLabel("prokes", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="prokes">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <ScrollReveal key={i}>
+            <div className="flex items-start gap-3 text-sm">
+              <span className="mt-1 size-1.5 shrink-0 rounded-full" style={{ background: "var(--inv-accent)" }} aria-hidden />
+              <p className="leading-relaxed opacity-80">{item}</p>
+            </div>
+          </ScrollReveal>
+        ))}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ── Adab ────────────────────────────────────────────────── */
+
+function Adab({ ctx }: { ctx: SectionContext }) {
+  const items = ctx.config.adab.items;
+  if (items.length === 0) return null;
+  const lb = sectionLabel("adab", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="adab">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <div className="space-y-2">
+        {items.map((item, i) => (
+          <ScrollReveal key={i}>
+            <div className="flex items-start gap-3 text-sm">
+              <span className="mt-1 size-1.5 shrink-0 rounded-full" style={{ background: "var(--inv-accent)" }} aria-hidden />
+              <p className="leading-relaxed opacity-80">{item}</p>
+            </div>
+          </ScrollReveal>
+        ))}
+      </div>
+    </SectionShell>
+  );
+}
+
 /* ── Closing ─────────────────────────────────────────────── */
 
 function Closing({ ctx }: { ctx: SectionContext }) {
@@ -792,16 +984,23 @@ function Closing({ ctx }: { ctx: SectionContext }) {
 const SECTION_COMPONENTS: Record<SectionId, (({ ctx }: { ctx: SectionContext }) => React.ReactNode) | null> = {
   cover: Cover,
   couple: Couple,
+  doa: Doa,
   event_info: EventInfo,
   countdown: CountdownSection,
   schedule_maps: ScheduleMaps,
+  info: Info,
   story: Story,
   gallery: Gallery,
   gift: GiftSection,
+  kado: Kado,
+  video: Video,
+  live: Live,
   rsvp: RSVP,
   guestbook: Guestbook,
   qr_pass: QrPass,
   wishes_list: WishesList,
+  prokes: Prokes,
+  adab: Adab,
   closing: Closing,
   music_player: null,
 };

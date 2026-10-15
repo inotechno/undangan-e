@@ -1,15 +1,30 @@
 "use client";
 
-import { Calendar, Heart, Image as ImageIcon, Megaphone, Palette, Plus, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  Heart,
+  Image as ImageIcon,
+  Info as InfoIcon,
+  Megaphone,
+  Palette,
+  Plus,
+  Trash2,
+  Video,
+  Shield,
+  BookOpen,
+  Gift,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
   EVENT_TYPES,
-  SECTION_IDS,
+  SECTION_DEFAULT_LABELS,
+  LABELABLE_SECTIONS,
   type InvitationConfig,
   type SectionId,
 } from "@/modules/invitation";
+import { SECTION_ORDER, SECTION_LABELS } from "@/modules/invitation/renderer";
 import {
   ColorField,
   MediaField,
@@ -38,16 +53,13 @@ function setEvent(config: InvitationConfig, patch: Partial<InvitationConfig["eve
   Object.assign(config.event, patch);
 }
 
-/* ── Tab: Acara ──────────────────────────────────────────── */
+/* ── Tab: Acara (dasar) ──────────────────────────────────── */
 
 const COUPLE_TYPES = new Set(["pernikahan", "tunangan"]);
 const CELEBRANT_TYPES = new Set(["ulang-tahun", "aqiqah", "khitanan"]);
 
 export function AcaraPanel({ invitationId, config, mutate }: PanelProps) {
   const event = config.event;
-  const showCouple = COUPLE_TYPES.has(event.type);
-  const showCelebrant = CELEBRANT_TYPES.has(event.type);
-  const couple = event.couple ?? { brideName: "", groomName: "" };
 
   return (
     <div className="space-y-5">
@@ -86,9 +98,22 @@ export function AcaraPanel({ invitationId, config, mutate }: PanelProps) {
         }
         hint="Direkomendasikan minimal 1200×800 px."
       />
+    </div>
+  );
+}
 
+/* ── Tab: Mempelai / Tuan Rumah ──────────────────────────── */
+
+export function MempelaiPanel({ invitationId, config, mutate }: PanelProps) {
+  const event = config.event;
+  const showCouple = COUPLE_TYPES.has(event.type);
+  const showCelebrant = CELEBRANT_TYPES.has(event.type);
+  const couple = event.couple ?? { brideName: "", groomName: "" };
+
+  return (
+    <div className="space-y-5">
       {showCouple ? (
-        <div className="space-y-4 rounded-xl border border-border-warm p-4">
+        <div className="space-y-4">
           <p className="flex items-center gap-1.5 text-sm font-semibold">
             <Heart className="size-4 text-teal" aria-hidden />
             Nama pasangan
@@ -171,7 +196,7 @@ export function AcaraPanel({ invitationId, config, mutate }: PanelProps) {
       ) : null}
 
       {showCelebrant ? (
-        <div className="space-y-4 rounded-xl border border-border-warm p-4">
+        <div className="space-y-4">
           <p className="flex items-center gap-1.5 text-sm font-semibold">
             <Megaphone className="size-4 text-teal" aria-hidden />
             Yang berulang tahun / dirayakan
@@ -201,7 +226,7 @@ export function AcaraPanel({ invitationId, config, mutate }: PanelProps) {
       ) : null}
 
       {!showCouple && !showCelebrant ? (
-        <div className="space-y-4 rounded-xl border border-border-warm p-4">
+        <div className="space-y-4">
           <p className="flex items-center gap-1.5 text-sm font-semibold">
             <Megaphone className="size-4 text-teal" aria-hidden />
             Nama tuan rumah / penyelenggara
@@ -705,23 +730,6 @@ export function HadiahMusikPanel({ config, mutate }: PanelProps) {
 
 /* ── Tab: Desain ─────────────────────────────────────────── */
 
-const SECTION_LABELS: Record<SectionId, string> = {
-  cover: "Sampul",
-  couple: "Nama pasangan / tuan rumah",
-  countdown: "Hitung mundur",
-  event_info: "Info acara",
-  schedule_maps: "Jadwal & peta",
-  story: "Kisah",
-  gallery: "Galeri",
-  gift: "Wedding gift",
-  rsvp: "RSVP (butuh tautan tamu)",
-  guestbook: "Buku tamu",
-  wishes_list: "Ucapan tamu",
-  qr_pass: "Kartu QR tamu",
-  closing: "Penutup",
-  music_player: "Tombol musik",
-};
-
 export function DesainPanel({ config, mutate }: PanelProps) {
   const theme = config.theme;
 
@@ -844,32 +852,351 @@ export function DesainPanel({ config, mutate }: PanelProps) {
           />
         </div>
       </section>
+    </div>
+  );
+}
 
+/* ── Tab: Informasi (doa + info custom + prokes + adab) ──── */
+
+export function InformasiPanel({ config, mutate }: PanelProps) {
+  const doa = config.doa;
+  const info = config.info;
+  const prokes = config.prokes;
+  const adab = config.adab;
+
+  return (
+    <div className="space-y-6">
+      {/* Doa */}
       <section className="space-y-3 rounded-xl border border-border-warm p-4">
-        <p className="text-sm font-semibold">Section yang ditampilkan</p>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {SECTION_IDS.map((id) => {
-            const enabled = config.sections[id] !== false;
-            return (
-              <label key={id} className="flex items-center gap-2.5 text-sm">
-                <input
-                  type="checkbox"
-                  checked={enabled}
-                  onChange={(e) =>
-                    mutate((c) => void (c.sections[id] = e.target.checked))
-                  }
-                  className="size-4 accent-[#0D9488]"
-                />
-                {SECTION_LABELS[id]}
-              </label>
-            );
-          })}
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <BookOpen className="size-4 text-teal" aria-hidden />
+          Doa pembuka
+        </p>
+        <TextAreaField
+          label="Teks doa"
+          value={doa.text ?? ""}
+          onChange={(v) => mutate((c) => void (c.doa.text = v || undefined))}
+          placeholder="Bismillahirrahmanirrahim…"
+          hint="Tampil sebagai section terpisah. Kosongkan untuk sembunyikan."
+          rows={3}
+        />
+      </section>
+
+      {/* Info items */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-1.5 text-sm font-semibold">
+            <InfoIcon className="size-4 text-teal" aria-hidden />
+            Info tambahan
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              mutate((c) => void c.info.items.push({ title: "", text: "" }))
+            }
+          >
+            <Plus className="size-3.5" aria-hidden />
+            Tambah
+          </Button>
         </div>
         <p className="text-muted-warm text-[11px]">
-          Section RSVP, buku tamu, dan kartu QR aktif ketika tamu membuka undangan lewat tautan
-          personal (?kepada=nama&amp;g=kode).
+          Informasi custom (dresscode, parkir, dll). Kosongkan semua untuk sembunyikan section.
         </p>
+        {info.items.map((item, i) => (
+          <div key={i} className="space-y-2 rounded-lg border border-border-warm p-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold opacity-60">Item {i + 1}</p>
+              <button
+                type="button"
+                onClick={() => mutate((c) => void c.info.items.splice(i, 1))}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="size-3.5" aria-hidden />
+              </button>
+            </div>
+            <TextField
+              label="Judul"
+              value={item.title}
+              onChange={(v) => mutate((c) => void (c.info.items[i]!.title = v))}
+            />
+            <TextAreaField
+              label="Isi"
+              value={item.text}
+              onChange={(v) => mutate((c) => void (c.info.items[i]!.text = v))}
+              rows={2}
+            />
+          </div>
+        ))}
       </section>
+
+      {/* Prokes */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-1.5 text-sm font-semibold">
+            <Shield className="size-4 text-teal" aria-hidden />
+            Protokol kesehatan
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => mutate((c) => void c.prokes.items.push(""))}
+          >
+            <Plus className="size-3.5" aria-hidden />
+            Tambah
+          </Button>
+        </div>
+        {prokes.items.map((item, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <TextField
+              label=""
+              value={item}
+              onChange={(v) => mutate((c) => void (c.prokes.items[i] = v))}
+              placeholder="Gunakan masker…"
+            />
+            <button
+              type="button"
+              onClick={() => mutate((c) => void c.prokes.items.splice(i, 1))}
+              className="mt-6 text-red-500 hover:text-red-700"
+            >
+              <Trash2 className="size-3.5" aria-hidden />
+            </button>
+          </div>
+        ))}
+      </section>
+
+      {/* Adab */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-1.5 text-sm font-semibold">
+            <BookOpen className="size-4 text-teal" aria-hidden />
+            Adab tamu
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => mutate((c) => void c.adab.items.push(""))}
+          >
+            <Plus className="size-3.5" aria-hidden />
+            Tambah
+          </Button>
+        </div>
+        {adab.items.map((item, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <TextField
+              label=""
+              value={item}
+              onChange={(v) => mutate((c) => void (c.adab.items[i] = v))}
+              placeholder="Mohon tidak membawa anak kecil…"
+            />
+            <button
+              type="button"
+              onClick={() => mutate((c) => void c.adab.items.splice(i, 1))}
+              className="mt-6 text-red-500 hover:text-red-700"
+            >
+              <Trash2 className="size-3.5" aria-hidden />
+            </button>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+/* ── Tab: Media (video + live + kado) ────────────────────── */
+
+export function MediaPanel({ config, mutate }: PanelProps) {
+  const video = config.video;
+  const live = config.live;
+  const kado = config.kado;
+
+  return (
+    <div className="space-y-6">
+      {/* Video */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <Video className="size-4 text-teal" aria-hidden />
+          Video
+        </p>
+        <TextField
+          label="URL video (YouTube / MP4)"
+          value={video.url ?? ""}
+          onChange={(v) => mutate((c) => void (c.video.url = v || undefined))}
+          placeholder="https://youtube.com/watch?v=…"
+          hint="Kosongkan untuk sembunyikan section."
+        />
+        <TextField
+          label="Judul video (opsional)"
+          value={video.title ?? ""}
+          onChange={(v) => mutate((c) => void (c.video.title = v || undefined))}
+        />
+      </section>
+
+      {/* Live streaming */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <Video className="size-4 text-teal" aria-hidden />
+          Live streaming
+        </p>
+        <TextField
+          label="URL live streaming"
+          value={live.url ?? ""}
+          onChange={(v) => mutate((c) => void (c.live.url = v || undefined))}
+          placeholder="https://youtube.com/watch?v=…"
+          hint="Kosongkan untuk sembunyikan section."
+        />
+        <TextField
+          label="Judul live (opsional)"
+          value={live.title ?? ""}
+          onChange={(v) => mutate((c) => void (c.live.title = v || undefined))}
+        />
+      </section>
+
+      {/* Kado fisik */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <Gift className="size-4 text-teal" aria-hidden />
+          Alamat kirim kado
+        </p>
+        <TextField
+          label="Penerima"
+          value={kado.recipient ?? ""}
+          onChange={(v) => mutate((c) => void (c.kado.recipient = v || undefined))}
+          placeholder="Nama penerima"
+        />
+        <TextAreaField
+          label="Alamat"
+          value={kado.address ?? ""}
+          onChange={(v) => mutate((c) => void (c.kado.address = v || undefined))}
+          placeholder="Jl. … Kota …"
+          rows={2}
+          hint="Kosongkan semua untuk sembunyikan section."
+        />
+        <TextField
+          label="Catatan (opsional)"
+          value={kado.notes ?? ""}
+          onChange={(v) => mutate((c) => void (c.kado.notes = v || undefined))}
+          placeholder="Titip ke satpam jika tidak ada di rumah"
+        />
+      </section>
+    </div>
+  );
+}
+
+/* ── Tab: Section (show/hide + judul + urutan) ───────────── */
+
+export function SectionPanel({ config, mutate }: PanelProps) {
+  // Urutan aktif: config.sectionOrder → SECTION_ORDER bawaan.
+  const order = (config.sectionOrder?.length
+    ? config.sectionOrder
+    : SECTION_ORDER) as SectionId[];
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const next = [...order];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    const [item] = next.splice(idx, 1);
+    next.splice(target, 0, item!);
+    mutate((c) => void (c.sectionOrder = next));
+  };
+
+  const toggle = (id: SectionId, on: boolean) => {
+    mutate((c) => void (c.sections[id] = on));
+  };
+
+  const setLabel = (id: SectionId, field: "eyebrow" | "title", value: string) => {
+    mutate((c) => {
+      c.sectionLabels = c.sectionLabels ?? {};
+      c.sectionLabels[id] = { ...c.sectionLabels[id], [field]: value || undefined };
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm font-semibold">Urutan & tampilan section</p>
+        <p className="text-muted-warm mt-0.5 text-[11px]">
+          Atur urutan (naik/turun), tampilkan/sembunyikan, dan edit judul section.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {order.map((id, idx) => {
+          const enabled = config.sections[id] !== false;
+          const canLabel = LABELABLE_SECTIONS.includes(id);
+          const lb = config.sectionLabels?.[id] ?? {};
+          const defLb = SECTION_DEFAULT_LABELS[id];
+          return (
+            <div
+              key={id}
+              className={cn(
+                "rounded-lg border border-border-warm p-3 transition-opacity",
+                !enabled && "opacity-50",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => move(idx, -1)}
+                    disabled={idx === 0}
+                    className="text-muted-warm hover:text-charcoal text-[10px] disabled:opacity-30"
+                    aria-label="Naikkan"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(idx, 1)}
+                    disabled={idx === order.length - 1}
+                    className="text-muted-warm hover:text-charcoal text-[10px] disabled:opacity-30"
+                    aria-label="Turunkan"
+                  >
+                    ▼
+                  </button>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">{SECTION_LABELS[id]}</p>
+                  {defLb?.title ? (
+                    <p className="text-muted-warm text-[11px]">Default: {defLb.title}</p>
+                  ) : null}
+                </div>
+                <label className="flex shrink-0 items-center gap-1.5 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => toggle(id, e.target.checked)}
+                    className="size-3.5 accent-[#0D9488]"
+                  />
+                  {enabled ? "Tampil" : "Sembunyi"}
+                </label>
+              </div>
+
+              {canLabel && enabled ? (
+                <div className="mt-2 grid gap-2 border-t border-border-warm pt-2 sm:grid-cols-2">
+                  <TextField
+                    label="Eyebrow"
+                    value={lb.eyebrow ?? ""}
+                    onChange={(v) => setLabel(id, "eyebrow", v)}
+                    placeholder={defLb?.eyebrow ?? ""}
+                  />
+                  <TextField
+                    label="Judul"
+                    value={lb.title ?? ""}
+                    onChange={(v) => setLabel(id, "title", v)}
+                    placeholder={defLb?.title ?? SECTION_LABELS[id]}
+                  />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-muted-warm text-[11px]">
+        Section RSVP, buku tamu, dan kartu QR aktif ketika tamu membuka undangan lewat tautan
+        personal (?kepada=nama&amp;g=kode).
+      </p>
     </div>
   );
 }

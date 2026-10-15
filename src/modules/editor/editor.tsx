@@ -27,8 +27,12 @@ import {
   AcaraPanel,
   CoverPanel,
   HadiahMusikPanel,
+  InformasiPanel,
   JadwalPanel,
   KontenPanel,
+  MempelaiPanel,
+  MediaPanel,
+  SectionPanel,
   DesainPanel,
   SeoPanel,
 } from "./panels";
@@ -51,12 +55,16 @@ export interface EditorInitial {
 
 const TABS = [
   { id: "acara", label: "Acara" },
+  { id: "mempelai", label: "Mempelai" },
   { id: "sampul", label: "Sampul" },
   { id: "jadwal", label: "Jadwal" },
   { id: "konten", label: "Konten" },
-  { id: "hadiah", label: "Hadiah & Musik" },
+  { id: "informasi", label: "Informasi" },
+  { id: "media", label: "Media" },
+  { id: "section", label: "Section" },
+  { id: "hadiah", label: "Hadiah" },
   { id: "desain", label: "Desain" },
-  { id: "seo", label: "SEO & Tautan" },
+  { id: "seo", label: "SEO" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -235,9 +243,13 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
 
           <div className="mt-4 rounded-xl border border-border-warm bg-surface p-4 sm:p-5">
             {tab === "acara" ? <AcaraPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
+            {tab === "mempelai" ? <MempelaiPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "sampul" ? <CoverPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "jadwal" ? <JadwalPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "konten" ? <KontenPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
+            {tab === "informasi" ? <InformasiPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
+            {tab === "media" ? <MediaPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
+            {tab === "section" ? <SectionPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "hadiah" ? <HadiahMusikPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "desain" ? <DesainPanel invitationId={initial.id} config={config} mutate={mutate} /> : null}
             {tab === "seo" ? (
