@@ -45,3 +45,10 @@ Sesi & data pengguna, data tamu (nama, phone), QR/kode tamu, token kelola, krede
 CI: authz matrix, signature webhook valid/invalid, sandbox escape (fase nanti), rate-limit. Manual: review dependent vuln, header scan, upload fuzzing ringan.
 - Rate limit global per-IP di `src/proxy.ts` (store Redis via `src/core/rate-limit.ts`, fallback in-memory): auth 15/5 menit; RSVP/buku tamu/ucapan 30/menit; API lain 120/menit; webhook pembayaran dikecualikan.
 - Security headers di `next.config.ts`: CSP (frame-ancestors `none` + X-Frame-Options `DENY` khusus `/admin` & `/dashboard`), HSTS, nosniff, Referrer-Policy, Permissions-Policy. Escape hatch: `RATE_LIMIT_ENABLED=false`.
+
+## 6b. Smoke test beban & monitoring
+- k6 smoke: `Get-Content -Raw scripts\smoke-k6.js | docker run -i --rm --add-host=host.docker.internal:host-gateway -e BASE_URL=http://host.docker.internal:3000 grafana/k6 run -`
+  (threshold: error <1%, p95 <2 detik; mencakup landing, undangan, OG image, sitemap, robots). Terakhir lulus: 780/780 checks, p95 ~208 ms.
+- Monitoring produksi (minimal): uptime check HTTP `/` + `/i/<slug contoh>` tiap 1 menit (UptimeRobot/Better Stack), alert jika >1 gagal berturut-turut; disk & memori VPS (node_exporter/cron df).
+- Log: server Node log ke stdout (systemd/pm2); rotasi log OS. Error aplikasi ter-`console.error` — kumpulkan via jurnal + `audit_logs` untuk aksi sensitif.
+- Regresi berkala: Lighthouse (SEO & a11y ≥95) + `scripts/restore-test.ps1` minimal sebelum rilis besar.
