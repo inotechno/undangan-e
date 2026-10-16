@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { TemplateGallery } from "./template-gallery";
 
 export const metadata: Metadata = {
@@ -26,7 +27,9 @@ export default function TemplateGalleryPage() {
       </div>
 
       <div className="mt-10">
-        <TemplateGallery />
+        <Suspense fallback={<div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" />}>
+          <TemplateGallery />
+        </Suspense>
       </div>
 
       <div className="mt-14 rounded-xl border border-border-warm bg-accent p-8 text-center">

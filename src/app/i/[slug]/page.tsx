@@ -65,7 +65,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description =
     config.seo.description ??
     (row.templateDescription ?? "Undangan digital interaktif yang indah, cepat, dan mudah dibagikan.");
-  const cover = config.seo.coverImage ?? row.templatePreview ?? undefined;
   const url = `${env.APP_URL}/i/${slug}`;
 
   return {
@@ -77,8 +76,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description,
       url,
       siteName: "UndanganE",
-      images: cover ? [{ url: cover, width: 1200, height: 630, alt: title }] : undefined,
+      // OG image 1200×630 digenerate oleh opengraph-image.tsx di segmen ini.
       type: "website",
+      locale: "id_ID",
     },
     twitter: { card: "summary_large_image", title, description },
     robots: { index: true, follow: true },

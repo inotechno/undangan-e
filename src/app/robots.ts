@@ -8,7 +8,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/app/", "/admin/", "/kelola/", "/api/"],
+        // Route privat: (group app) → /dashboard, /undangan, /bayar; /admin; API internal.
+        disallow: ["/dashboard/", "/undangan/", "/bayar/", "/admin/", "/api/"],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

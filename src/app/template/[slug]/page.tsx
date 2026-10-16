@@ -43,9 +43,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description,
       url,
       siteName: "UndanganE",
-      images: [{ url: template.previewImage, width: 1200, height: 630, alt: template.name }],
+      // OG image 1200×630 (preview template + judul) digenerate oleh opengraph-image.tsx.
       type: "website",
+      locale: "id_ID",
     },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -74,8 +76,23 @@ export default async function TemplateDetailPage({ params }: Params) {
     .limit(1);
   const labels = (row?.sectionLabels ?? {}) as SectionLabels;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `Template ${template.name}`,
+    description: `${template.description} Template undangan digital kategori ${template.category}.`,
+    url: `${env.APP_URL}/template/${slug}`,
+    image: `${env.APP_URL}${template.previewImage}`,
+    brand: { "@type": "Brand", name: "UndanganE" },
+    category: template.category,
+  };
+
   return (
     <div className="bg-background min-h-dvh">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
           <Link href="/template" className="text-sm font-semibold hover:opacity-70">

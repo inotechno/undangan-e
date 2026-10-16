@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Eye, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TEMPLATE_REGISTRY } from "@/modules/invitation";
@@ -20,8 +21,20 @@ const CARDS = Object.values(TEMPLATE_REGISTRY).map((t) => ({
 const CATEGORIES = Array.from(new Set(CARDS.map((t) => t.category)));
 
 export function TemplateGallery() {
-  const [category, setCategory] = useState("");
+  const searchParams = useSearchParams();
+  const [category, setCategory] = useState(() => {
+    const k = searchParams.get("kategori") ?? "";
+    return CATEGORIES.includes(k) ? k : "";
+  });
   const [search, setSearch] = useState("");
+
+  const changeCategory = (cat: string) => {
+    setCategory(cat);
+    const url = new URL(window.location.href);
+    if (cat) url.searchParams.set("kategori", cat);
+    else url.searchParams.delete("kategori");
+    window.history.replaceState(null, "", url);
+  };
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -58,7 +71,7 @@ export function TemplateGallery() {
           type="button"
           role="tab"
           aria-selected={category === ""}
-          onClick={() => setCategory("")}
+          onClick={() => changeCategory("")}
           className={cn(
             "rounded-full px-4 py-2 text-xs font-semibold transition-colors",
             category === ""
@@ -76,7 +89,7 @@ export function TemplateGallery() {
               type="button"
               role="tab"
               aria-selected={category === cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => changeCategory(cat)}
               className={cn(
                 "rounded-full px-4 py-2 text-xs font-semibold transition-colors",
                 category === cat

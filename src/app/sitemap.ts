@@ -26,6 +26,21 @@ async function getPublishedInvitationUrls() {
   }
 }
 
+async function getActiveTemplateSlugs() {
+  "use cache";
+  cacheLife("hours");
+  try {
+    const rows = await db
+      .select({ slug: schema.templates.slug })
+      .from(schema.templates)
+      .where(eq(schema.templates.status, "active"))
+      .limit(200);
+    return rows.map((r) => r.slug);
+  } catch {
+    return [] as string[];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = env.APP_URL;
   const now = new Date();
@@ -66,5 +81,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticPages, ...invitationEntries];
+  const templateSlugs = await getActiveTemplateSlugs();
+  const templateEntries: MetadataRoute.Sitemap = templateSlugs.map((slug) => ({
+    url: `${siteUrl}/template/${slug}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...templateEntries, ...invitationEntries];
 }
