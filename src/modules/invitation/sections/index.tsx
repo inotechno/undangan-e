@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { MapPin, CalendarDays, Clock, Heart, Sparkles, Gift, Quote } from "lucide-react";
 import { ScrollReveal } from "@/components/site/scroll-reveal";
@@ -15,6 +18,7 @@ import {
 } from "../types";
 import { CopyButton, Countdown, ScrollCue } from "./interactive";
 import { GuestbookForm, GuestQrCard, RsvpForm } from "./guest-interactive";
+import { Lightbox } from "./lightbox";
 
 export interface SectionContext {
   config: InvitationConfig;
@@ -595,6 +599,7 @@ function Story({ ctx }: { ctx: SectionContext }) {
 
 function Gallery({ ctx }: { ctx: SectionContext }) {
   const { config } = ctx;
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   if (config.gallery.length === 0) return null;
   const lb = sectionLabel("gallery", ctx.labels, ctx.userLabels);
 
@@ -607,7 +612,12 @@ function Gallery({ ctx }: { ctx: SectionContext }) {
             key={`${item.image}-${index}`}
             className={cn("col-span-2 sm:col-span-1", index % 3 === 0 && "sm:col-span-2")}
           >
-            <figure className="relative overflow-hidden rounded-[var(--inv-radius)]">
+            <button
+              type="button"
+              onClick={() => setLightboxIdx(index)}
+              className="relative block w-full overflow-hidden rounded-[var(--inv-radius)] focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label={`Buka foto ${index + 1}`}
+            >
               <Image
                 src={item.image}
                 alt={item.caption ?? `Galeri ${index + 1}`}
@@ -621,10 +631,18 @@ function Gallery({ ctx }: { ctx: SectionContext }) {
                   {item.caption}
                 </figcaption>
               ) : null}
-            </figure>
+            </button>
           </ScrollReveal>
         ))}
       </div>
+      {lightboxIdx !== null ? (
+        <Lightbox
+          items={config.gallery}
+          index={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}
+          onNavigate={setLightboxIdx}
+        />
+      ) : null}
     </SectionShell>
   );
 }
@@ -633,7 +651,9 @@ function Gallery({ ctx }: { ctx: SectionContext }) {
 
 function GiftSection({ ctx }: { ctx: SectionContext }) {
   const { config } = ctx;
-  if (!config.gift.enabled || config.gift.accounts.length === 0) return null;
+  const amplop = config.gift.amplop;
+  const hasAmplop = Boolean(amplop?.qrImage);
+  if (!config.gift.enabled || (config.gift.accounts.length === 0 && !hasAmplop)) return null;
   const lb = sectionLabel("gift", ctx.labels, ctx.userLabels);
 
   return (
@@ -649,25 +669,39 @@ function GiftSection({ ctx }: { ctx: SectionContext }) {
             {config.gift.instructions ??
               "Doa restu Anda adalah hadiah terindah. Jika ingin memberi tanda kasih, dapat ditransfer ke:"}
           </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {config.gift.accounts.map((account) => (
-              <div
-                key={`${account.bank}-${account.number}`}
-                className="rounded-[var(--inv-radius)] p-4 text-left"
-                style={{ background: "var(--inv-accent-soft)" }}
-              >
-                <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--inv-accent)" }}>
-                  {account.bank}
-                </p>
-                <p className="mt-1 font-mono text-base font-bold">{account.number}</p>
-                <p className="text-xs opacity-70">a.n. {account.holder}</p>
-                <CopyButton
-                  value={account.number}
-                  className="mt-3"
-                />
+          {config.gift.accounts.length > 0 ? (
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {config.gift.accounts.map((account) => (
+                <div
+                  key={`${account.bank}-${account.number}`}
+                  className="rounded-[var(--inv-radius)] p-4 text-left"
+                  style={{ background: "var(--inv-accent-soft)" }}
+                >
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--inv-accent)" }}>
+                    {account.bank}
+                  </p>
+                  <p className="mt-1 font-mono text-base font-bold">{account.number}</p>
+                  <p className="text-xs opacity-70">a.n. {account.holder}</p>
+                  <CopyButton value={account.number} className="mt-3" />
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Amplop digital (QRIS / e-wallet) */}
+          {hasAmplop ? (
+            <div className="mt-5 rounded-[var(--inv-radius)] p-4" style={{ background: "var(--inv-accent-soft)" }}>
+              <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--inv-accent)" }}>
+                {amplop.label ?? "QRIS / E-Wallet"}
+              </p>
+              {amplop.holder ? <p className="mt-1 text-xs opacity-70">a.n. {amplop.holder}</p> : null}
+              <div className="mx-auto mt-3 w-48 overflow-hidden rounded-lg border border-white/50 bg-white p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={amplop.qrImage} alt="QRIS" className="h-auto w-full" />
               </div>
-            ))}
-          </div>
+              <p className="mt-2 text-[11px] opacity-60">Scan QR untuk kirim hadiah digital</p>
+            </div>
+          ) : null}
         </div>
       </ScrollReveal>
     </SectionShell>
@@ -699,7 +733,12 @@ function RSVP({ ctx }: { ctx: SectionContext }) {
       <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
       <GuestGate ctx={ctx} hint="Isi RSVP tersedia jika Anda membuka undangan melalui tautan personal.">
         {ctx.guest ? (
-          <RsvpForm slug={ctx.slug} guest={ctx.guest} mode={ctx.mode ?? "live"} />
+          <RsvpForm
+            slug={ctx.slug}
+            guest={ctx.guest}
+            mode={ctx.mode ?? "live"}
+            schedules={ctx.config.event.schedules}
+          />
         ) : null}
       </GuestGate>
     </SectionShell>
@@ -775,6 +814,37 @@ function Doa({ ctx }: { ctx: SectionContext }) {
         <p className="mx-auto max-w-lg text-sm leading-loose opacity-80 italic" style={{ fontFamily: "var(--inv-body)" }}>
           {text}
         </p>
+      </ScrollReveal>
+    </SectionShell>
+  );
+}
+
+/* ── Mengundang ──────────────────────────────────────────── */
+
+function Mengundang({ ctx }: { ctx: SectionContext }) {
+  const raw = ctx.config.mengundang.names;
+  if (!raw?.trim()) return null;
+  const names = raw.split("\n").map((n) => n.trim()).filter(Boolean);
+  if (names.length === 0) return null;
+  const lb = sectionLabel("mengundang", ctx.labels, ctx.userLabels);
+  return (
+    <SectionShell id="mengundang" className="text-center">
+      <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
+      <ScrollReveal>
+        <p className="mx-auto mb-4 max-w-md text-sm leading-relaxed opacity-70">
+          Tanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu/Saudara/i untuk hadir di acara kami.
+        </p>
+        <div className="mx-auto max-w-md space-y-2">
+          {names.map((name, i) => (
+            <p
+              key={i}
+              className="text-base font-semibold"
+              style={{ fontFamily: "var(--inv-heading)" }}
+            >
+              {name}
+            </p>
+          ))}
+        </div>
       </ScrollReveal>
     </SectionShell>
   );
@@ -873,33 +943,85 @@ function Video({ ctx }: { ctx: SectionContext }) {
 
 /* ── Live ────────────────────────────────────────────────── */
 
+function toZoomEmbed(url: string): string | null {
+  // Zoom web client: https://zoom.us/w/123456789 → embed via zoom.us/embed?jump=...
+  const m = url.match(/zoom\.us\/(?:j|w)\/(\d+)/);
+  return m ? `https://zoom.us/embed?jump=${m[1]}` : null;
+}
+
+function toFacebookVideoId(url: string): string | null {
+  const m = url.match(/facebook\.com\/.*\/videos\/(?:.*\/)?(\d+)/) || url.match(/fb\.watch\/([\w-]+)/);
+  return m?.[1] ?? null;
+}
+
 function Live({ ctx }: { ctx: SectionContext }) {
   const live = ctx.config.live;
   if (!live.url) return null;
   const lb = sectionLabel("live", ctx.labels, ctx.userLabels);
+
   const ytId = toYouTubeId(live.url);
+  const zoomUrl = toZoomEmbed(live.url);
+  const fbId = toFacebookVideoId(live.url);
+  const platform = live.platform ?? "youtube";
+
+  let embed: React.ReactNode;
+  if (ytId) {
+    embed = (
+      <div className="relative aspect-video">
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}`}
+          title={live.title || "Live"}
+          className="absolute inset-0 h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  } else if (zoomUrl) {
+    embed = (
+      <div className="relative aspect-video">
+        <iframe
+          src={zoomUrl}
+          title={live.title || "Zoom Live"}
+          className="absolute inset-0 h-full w-full"
+          allow="camera; microphone; fullscreen; display-capture"
+        />
+      </div>
+    );
+  } else if (fbId) {
+    embed = (
+      <div className="relative aspect-video">
+        <iframe
+          src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(live.url)}&show_text=false`}
+          title={live.title || "Facebook Live"}
+          className="absolute inset-0 h-full w-full"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+    );
+  } else {
+    embed = (
+      <div className="flex aspect-video items-center justify-center" style={{ background: "var(--inv-accent-soft)" }}>
+        <a
+          href={live.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 text-center text-sm font-bold underline"
+          style={{ color: "var(--inv-accent)" }}
+        >
+          Buka siaran langsung ({platform})
+        </a>
+      </div>
+    );
+  }
+
   return (
     <SectionShell id="live">
       <SectionHeading eyebrow={lb.eyebrow} title={live.title || lb.title} />
       <ScrollReveal>
         <div className="overflow-hidden rounded-[var(--inv-radius)] border" style={{ borderColor: "var(--inv-accent-soft)" }}>
-          {ytId ? (
-            <div className="relative aspect-video">
-              <iframe
-                src={`https://www.youtube.com/embed/${ytId}`}
-                title={live.title || "Live"}
-                className="absolute inset-0 h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            <div className="flex aspect-video items-center justify-center" style={{ background: "var(--inv-accent-soft)" }}>
-              <a href={live.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold underline" style={{ color: "var(--inv-accent)" }}>
-                Buka siaran langsung
-              </a>
-            </div>
-          )}
+          {embed}
         </div>
       </ScrollReveal>
     </SectionShell>
@@ -985,6 +1107,7 @@ const SECTION_COMPONENTS: Record<SectionId, (({ ctx }: { ctx: SectionContext }) 
   cover: Cover,
   couple: Couple,
   doa: Doa,
+  mengundang: Mengundang,
   event_info: EventInfo,
   countdown: CountdownSection,
   schedule_maps: ScheduleMaps,

@@ -11,10 +11,10 @@ import {
   InvitationRenderer,
   getTemplate,
   resolveTheme,
-  SECTION_ORDER,
   TEMPLATE_REGISTRY,
   type SectionLabels,
 } from "@/modules/invitation";
+import { SECTION_ORDER } from "@/modules/invitation/order";
 
 type Params = { params: Promise<{ slug: string }> };
 

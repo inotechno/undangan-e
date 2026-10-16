@@ -5,7 +5,16 @@ import { db, schema } from "@/db";
 /* ── Skema ───────────────────────────────────────────────── */
 
 export const rsvpSchema = z.object({
-  status: z.enum(["attending", "declined"]),
+  status: z.enum(["attending", "declined"]).optional(),
+  /** RSVP per sesi acara (opsional — untuk multi-acara). */
+  sessions: z
+    .array(
+      z.object({
+        scheduleIndex: z.number().int().min(0),
+        status: z.enum(["attending", "declined"]),
+      }),
+    )
+    .optional(),
   guestCode: z.string().trim().min(6).max(40),
   note: z.string().trim().max(200).optional(),
 });
@@ -58,8 +67,21 @@ export async function submitRsvp(
     .limit(1);
   if (!guest) return { ok: false, error: "Tamu tidak dikenal — buka undangan melalui tautan personal Anda", status: 404 };
 
-  await db.update(schema.guests).set({ rsvp: input.status }).where(eq(schema.guests.id, guest.id));
-  return { ok: true, rsvp: input.status };
+  // Simpan RSVP per sesi jika ada.
+  if (input.sessions && input.sessions.length > 0) {
+    const overall = input.sessions.some((s) => s.status === "attending") ? "attending" : "declined";
+    await db
+      .update(schema.guests)
+      .set({ rsvp: overall, rsvpSessions: input.sessions })
+      .where(eq(schema.guests.id, guest.id));
+    return { ok: true, rsvp: overall };
+  }
+
+  // Fallback: RSVP umum (wajib ada status).
+  const status = input.status;
+  if (!status) return { ok: false, error: "Status RSVP wajib diisi", status: 400 };
+  await db.update(schema.guests).set({ rsvp: status }).where(eq(schema.guests.id, guest.id));
+  return { ok: true, rsvp: status };
 }
 
 /* ── Buku tamu publik ────────────────────────────────────── */

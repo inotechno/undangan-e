@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { themeStyle } from "./theme";
 import {
@@ -10,8 +12,11 @@ import {
   type WishItem,
 } from "./types";
 import { renderSection, type SectionContext } from "./sections";
+import { SECTION_LABELS, SECTION_ORDER } from "./order";
 import { InvitationChrome } from "./sections/interactive";
 import { DecorationLayer } from "./sections/particles";
+
+export { SECTION_LABELS, SECTION_ORDER };
 
 export interface RendererProps {
   config: InvitationConfig;
@@ -26,54 +31,6 @@ export interface RendererProps {
   /** Slug undangan (untuk form interaktif RSVP & buku tamu). */
   slug?: string;
 }
-
-/** Urutan baku section dalam undangan (docs/06). */
-export const SECTION_ORDER: SectionId[] = [
-  "couple",
-  "doa",
-  "event_info",
-  "countdown",
-  "schedule_maps",
-  "info",
-  "story",
-  "gallery",
-  "gift",
-  "kado",
-  "video",
-  "live",
-  "rsvp",
-  "guestbook",
-  "wishes_list",
-  "prokes",
-  "adab",
-  "qr_pass",
-  "closing",
-];
-
-/** Label navigasi per section (dipakai menu mengambang). */
-export const SECTION_LABELS: Record<SectionId, string> = {
-  cover: "Sampul",
-  couple: "Mempelai",
-  doa: "Doa",
-  event_info: "Waktu & Tempat",
-  countdown: "Hitung Mundur",
-  schedule_maps: "Jadwal Acara",
-  info: "Info",
-  story: "Kisah Kami",
-  gallery: "Galeri",
-  gift: "Hadiah",
-  kado: "Kado",
-  video: "Video",
-  live: "Live",
-  rsvp: "RSVP",
-  guestbook: "Buku Tamu",
-  qr_pass: "Kartu QR",
-  wishes_list: "Ucapan",
-  prokes: "Prokes",
-  adab: "Adab",
-  closing: "Penutup",
-  music_player: "Musik",
-};
 
 function FramePattern() {
   return (

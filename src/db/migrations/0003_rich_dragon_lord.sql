@@ -1,0 +1,1 @@
+ALTER TABLE "guests" ADD COLUMN "rsvp_sessions" jsonb DEFAULT '[]'::jsonb;

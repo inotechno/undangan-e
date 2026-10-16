@@ -9,10 +9,12 @@ import {
   Palette,
   Plus,
   Trash2,
+  Users,
   Video,
   Shield,
   BookOpen,
   Gift,
+  QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -605,7 +607,7 @@ export function KontenPanel({ invitationId, config, mutate }: PanelProps) {
 
 /* ── Tab: Hadiah & Musik ─────────────────────────────────── */
 
-export function HadiahMusikPanel({ config, mutate }: PanelProps) {
+export function HadiahMusikPanel({ invitationId, config, mutate }: PanelProps) {
   const gift = config.gift;
   const music = config.music;
 
@@ -672,6 +674,34 @@ export function HadiahMusikPanel({ config, mutate }: PanelProps) {
               <Plus className="size-3.5" aria-hidden />
               Tambah rekening
             </Button>
+
+            {/* Amplop digital QRIS */}
+            <div className="space-y-3 rounded-lg border border-border-warm p-3">
+              <p className="flex items-center gap-1.5 text-xs font-bold uppercase opacity-60">
+                <QrCode className="size-3.5" aria-hidden />
+                Amplop Digital (QRIS / E-Wallet)
+              </p>
+              <MediaField
+                label="Gambar QRIS"
+                invitationId={invitationId}
+                value={gift.amplop?.qrImage ?? ""}
+                onChange={(v) => mutate((c) => void (c.gift.amplop.qrImage = v || undefined))}
+                hint="Upload screenshot QRIS dari bank/e-wallet Anda."
+              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <TextField
+                  label="Label (opsional)"
+                  value={gift.amplop?.label ?? ""}
+                  onChange={(v) => mutate((c) => void (c.gift.amplop.label = v || undefined))}
+                  placeholder="QRIS / GoPay / Dana"
+                />
+                <TextField
+                  label="Atas nama (opsional)"
+                  value={gift.amplop?.holder ?? ""}
+                  onChange={(v) => mutate((c) => void (c.gift.amplop.holder = v || undefined))}
+                />
+              </div>
+            </div>
           </>
         ) : null}
       </section>
@@ -863,9 +893,26 @@ export function InformasiPanel({ config, mutate }: PanelProps) {
   const info = config.info;
   const prokes = config.prokes;
   const adab = config.adab;
+  const mengundang = config.mengundang;
 
   return (
     <div className="space-y-6">
+      {/* Mengundang */}
+      <section className="space-y-3 rounded-xl border border-border-warm p-4">
+        <p className="flex items-center gap-1.5 text-sm font-semibold">
+          <Users className="size-4 text-teal" aria-hidden />
+          Daftar pengundang
+        </p>
+        <TextAreaField
+          label="Nama pengundang (satu per baris)"
+          value={mengundang.names ?? ""}
+          onChange={(v) => mutate((c) => void (c.mengundang.names = v || undefined))}
+          placeholder={"Keluarga Besar Bapak H. Ahmad\nKeluarga Besar Bapak H. Bambang"}
+          hint="Tampil di section Mengundang. Kosongkan untuk sembunyikan."
+          rows={3}
+        />
+      </section>
+
       {/* Doa */}
       <section className="space-y-3 rounded-xl border border-border-warm p-4">
         <p className="flex items-center gap-1.5 text-sm font-semibold">
@@ -1038,11 +1085,28 @@ export function MediaPanel({ config, mutate }: PanelProps) {
           <Video className="size-4 text-teal" aria-hidden />
           Live streaming
         </p>
+        <SelectField
+          label="Platform"
+          value={live.platform ?? "youtube"}
+          onChange={(v) => mutate((c) => void (c.live.platform = v as NonNullable<typeof live.platform>))}
+          options={[
+            { value: "youtube", label: "YouTube" },
+            { value: "zoom", label: "Zoom" },
+            { value: "facebook", label: "Facebook Live" },
+            { value: "other", label: "Lainnya (tautan)" },
+          ]}
+        />
         <TextField
           label="URL live streaming"
           value={live.url ?? ""}
           onChange={(v) => mutate((c) => void (c.live.url = v || undefined))}
-          placeholder="https://youtube.com/watch?v=…"
+          placeholder={
+            live.platform === "zoom"
+              ? "https://zoom.us/j/123456789"
+              : live.platform === "facebook"
+                ? "https://facebook.com/live/…"
+                : "https://youtube.com/watch?v=…"
+          }
           hint="Kosongkan untuk sembunyikan section."
         />
         <TextField

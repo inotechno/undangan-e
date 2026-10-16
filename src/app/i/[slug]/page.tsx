@@ -115,6 +115,7 @@ export default async function InvitationPage({ params, searchParams }: Params & 
         code: ctx.code,
         quota: ctx.quota,
         rsvp: ctx.rsvp,
+        rsvpSessions: ctx.rsvpSessions,
         qrPayload: signGuestPayload(ctx.code),
       }
     : null;

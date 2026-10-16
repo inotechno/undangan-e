@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Clock, Heart, Loader2, MessageSquareHeart, X } from "lucide-react";
+import { Check, Clock, Heart, Loader2, MapPin, MessageSquareHeart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { GuestContext } from "../types";
+import type { GuestContext, Schedule } from "../types";
 
 /* ── RSVP ────────────────────────────────────────────────── */
 
@@ -12,28 +12,54 @@ export function RsvpForm({
   slug,
   guest,
   mode,
+  schedules,
 }: {
   slug?: string;
   guest: GuestContext;
   mode: "live" | "preview";
+  schedules?: Schedule[];
 }) {
+  const multi = (schedules?.length ?? 0) > 1;
   const [status, setStatus] = useState<"idle" | "busy" | "done" | "error">(
     guest.rsvp && guest.rsvp !== "pending" ? "done" : "idle",
   );
   const [current, setCurrent] = useState<"attending" | "declined" | null>(
     guest.rsvp && guest.rsvp !== "pending" ? guest.rsvp : null,
   );
+  // RSVP per sesi: index → status
+  const [sessionStatus, setSessionStatus] = useState<Record<number, "attending" | "declined">>(() => {
+    const init: Record<number, "attending" | "declined"> = {};
+    for (const s of guest.rsvpSessions ?? []) init[s.scheduleIndex] = s.status;
+    return init;
+  });
   const [msg, setMsg] = useState<string | null>(null);
 
-  async function pick(next: "attending" | "declined") {
+  async function pick(next: "attending" | "declined", scheduleIndex?: number) {
     if (status === "busy" || mode === "preview" || !slug) return;
     setStatus("busy");
     setMsg(null);
+
+    // Multi-acara: update local per-sesi dulu, lalu submit semua.
+    const nextSessions = scheduleIndex !== undefined
+      ? { ...sessionStatus, [scheduleIndex]: next }
+      : sessionStatus;
+    if (scheduleIndex !== undefined) setSessionStatus(nextSessions);
+
+    const body = multi && scheduleIndex !== undefined
+      ? {
+          guestCode: guest.code,
+          sessions: Object.entries(nextSessions).map(([idx, st]) => ({
+            scheduleIndex: Number(idx),
+            status: st,
+          })),
+        }
+      : { status: next, guestCode: guest.code };
+
     try {
       const res = await fetch(`/api/i/${slug}/rsvp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: next, guestCode: guest.code }),
+        body: JSON.stringify(body),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -53,6 +79,87 @@ export function RsvpForm({
     return (
       <div className="rounded-[var(--inv-radius)] border p-5 text-center text-xs opacity-70" style={{ borderColor: "var(--inv-accent)" }}>
         Form RSVP aktif pada undangan yang sudah diterbitkan.
+      </div>
+    );
+  }
+
+  // Multi-acara: tampilkan per sesi.
+  if (multi && schedules) {
+    return (
+      <div
+        className="rounded-[var(--inv-radius)] border p-5 text-center"
+        style={{ borderColor: "var(--inv-accent)", background: "var(--inv-surface)" }}
+      >
+        <p className="mb-4 text-sm">
+          Konfirmasi kehadiran per sesi, <span className="font-semibold">{guest.name}</span>.
+        </p>
+        <div className="space-y-3 text-left">
+          {schedules.map((sch, idx) => {
+            const st = sessionStatus[idx];
+            const date = new Date(sch.start);
+            return (
+              <div
+                key={idx}
+                className="rounded-[var(--inv-radius)] border p-3"
+                style={{ borderColor: "var(--inv-accent-soft)" }}
+              >
+                <p className="text-sm font-semibold">{sch.title}</p>
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs opacity-70">
+                  <Clock className="size-3" aria-hidden />
+                  {date.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}
+                  {" · "}
+                  {date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+                {sch.venue ? (
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs opacity-70">
+                    <MapPin className="size-3" aria-hidden />
+                    {sch.venue}
+                  </p>
+                ) : null}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={status === "busy"}
+                    onClick={() => void pick("attending", idx)}
+                    className={cn(
+                      "inline-flex h-8 items-center gap-1 rounded-full px-4 text-[11px] font-bold transition-opacity disabled:opacity-50",
+                      st === "attending"
+                        ? "text-white"
+                        : "border",
+                    )}
+                    style={
+                      st === "attending"
+                        ? { background: "var(--inv-accent)" }
+                        : { borderColor: "var(--inv-accent)" }
+                    }
+                  >
+                    {st === "attending" ? <Check className="size-3" aria-hidden /> : <Heart className="size-3" aria-hidden />}
+                    Hadir
+                  </button>
+                  <button
+                    type="button"
+                    disabled={status === "busy"}
+                    onClick={() => void pick("declined", idx)}
+                    className={cn(
+                      "inline-flex h-8 items-center gap-1 rounded-full px-4 text-[11px] font-bold transition-opacity disabled:opacity-50",
+                      st === "declined" ? "text-white" : "border",
+                    )}
+                    style={
+                      st === "declined"
+                        ? { background: "var(--inv-accent)" }
+                        : { borderColor: "var(--inv-accent)" }
+                    }
+                  >
+                    {st === "declined" ? <X className="size-3" aria-hidden /> : null}
+                    Tidak hadir
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {msg ? <p className="mt-3 text-[11px] text-rose-500">{msg}</p> : null}
+        <p className="mt-3 text-[11px] opacity-60">Anda bisa memilih berbeda untuk tiap sesi.</p>
       </div>
     );
   }

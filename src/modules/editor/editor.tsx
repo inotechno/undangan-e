@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -9,8 +9,10 @@ import {
   Eye,
   Link as LinkIcon,
   Loader2,
+  Redo2,
   Trash2,
   TriangleAlert,
+  Undo2,
   Upload,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +24,7 @@ import type { SectionId, SectionLabels, ThemeTokens } from "@/modules/invitation
 import { slugSchema } from "@/modules/invitations/slug";
 import { STATUS_CLASS, STATUS_LABEL } from "@/modules/invitations/status";
 import { useAutosave } from "./use-autosave";
+import { useUndoableConfig } from "./use-undoable-config";
 import { PhonePreview } from "./preview";
 import {
   AcaraPanel,
@@ -78,7 +81,14 @@ const SAVE_LABEL = {
 
 export function InvitationEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();
-  const [config, setConfig] = useState<InvitationConfig>(initial.config);
+  const {
+    config,
+    mutate,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useUndoableConfig(initial.config);
   const status = initial.status;
   const [slug, setSlug] = useState(initial.slug);
   const [slugDraft, setSlugDraft] = useState(initial.slug);
@@ -88,13 +98,28 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
 
   const { state, error, saveNow } = useAutosave(initial.id, config);
 
-  function mutate(fn: (draft: InvitationConfig) => void) {
-    setConfig((prev) => {
-      const next = structuredClone(prev);
-      fn(next);
-      return next;
-    });
-  }
+  // Keyboard shortcut: Ctrl+Z (undo) / Ctrl+Y atau Ctrl+Shift+Z (redo)
+  const undoRef = useRef(undo);
+  const redoRef = useRef(redo);
+  useEffect(() => {
+    undoRef.current = undo;
+    redoRef.current = redo;
+  }, [undo, redo]);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const key = e.key.toLowerCase();
+      if (key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undoRef.current();
+      } else if (key === "y" || (key === "z" && e.shiftKey)) {
+        e.preventDefault();
+        redoRef.current();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const title =
     config.seo.title ??
@@ -178,6 +203,28 @@ export function InvitationEditor({ initial }: { initial: EditorInitial }) {
             ) : null}
             {SAVE_LABEL[state]}
           </span>
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={undo}
+              disabled={!canUndo}
+              title="Undo (Ctrl+Z)"
+              aria-label="Undo"
+            >
+              <Undo2 className="size-3.5" aria-hidden />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={redo}
+              disabled={!canRedo}
+              title="Redo (Ctrl+Y)"
+              aria-label="Redo"
+            >
+              <Redo2 className="size-3.5" aria-hidden />
+            </Button>
+          </div>
           <Badge variant="outline" className={cn("text-[11px] font-semibold", STATUS_CLASS[status])}>
             {STATUS_LABEL[status] ?? status}
           </Badge>

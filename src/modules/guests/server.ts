@@ -397,6 +397,7 @@ export interface PublicGuestContext {
   code: string;
   quota: number;
   rsvp: "pending" | "attending" | "declined";
+  rsvpSessions?: Array<{ scheduleIndex: number; status: "attending" | "declined" }>;
 }
 
 /**
@@ -414,7 +415,7 @@ export async function resolvePublicGuest(
       .from(schema.guests)
       .where(and(eq(schema.guests.invitationId, invitationId), eq(schema.guests.guestCode, input.guestCode)))
       .limit(1);
-    if (row) return { name: row.name, code: row.guestCode, quota: row.quota, rsvp: row.rsvp };
+    if (row) return { name: row.name, code: row.guestCode, quota: row.quota, rsvp: row.rsvp, rsvpSessions: row.rsvpSessions ?? [] };
 
     // Tamu tidak dikenal → buat baru (docs/10 default: buat baru)
     const [totalRow] = await db
@@ -446,7 +447,7 @@ export async function resolvePublicGuest(
       .from(schema.guests)
       .where(and(eq(schema.guests.invitationId, invitationId), eq(schema.guests.nameNormalized, nameNormalized)))
       .limit(1);
-    if (existing) return { name: existing.name, code: existing.guestCode, quota: existing.quota, rsvp: existing.rsvp };
+    if (existing) return { name: existing.name, code: existing.guestCode, quota: existing.quota, rsvp: existing.rsvp, rsvpSessions: existing.rsvpSessions ?? [] };
 
     const [totalRow] = await db
       .select({ n: count() })

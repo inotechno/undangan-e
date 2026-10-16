@@ -12,6 +12,29 @@ interface NominatimResult {
   name?: string;
 }
 
+/** Photon (komoot) — fallback saat Nominatim diblokir/rate-limit. */
+interface PhotonResult {
+  geometry: { coordinates: [number, number] };
+  properties: {
+    name?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+}
+
+function photonToResult(r: PhotonResult): NominatimResult {
+  const p = r.properties;
+  const parts = [p.name, p.street, p.city, p.state, p.country].filter(Boolean);
+  return {
+    lat: String(r.geometry.coordinates[1]),
+    lon: String(r.geometry.coordinates[0]),
+    name: p.name,
+    display_name: parts.join(", ") || p.name || "Lokasi",
+  };
+}
+
 interface LocationPickerProps {
   lat?: number;
   lng?: number;
@@ -25,6 +48,7 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [pickMode, setPickMode] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -40,18 +64,46 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
   }, []);
 
   const search = useCallback(async (q: string) => {
-    if (q.trim().length < 3) { setResults([]); setOpen(false); return; }
+    if (q.trim().length < 3) {
+      setResults([]);
+      setSearchError(null);
+      setOpen(false);
+      return;
+    }
     setSearching(true);
+    setSearchError(null);
+    // Utama: Nominatim. Cadangan: Photon — sering dipakai saat Nominatim 403/429.
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(q)}`,
         { headers: { Accept: "application/json" } },
       );
-      const data = (await res.json()) as NominatimResult[];
-      setResults(data);
+      if (res.ok) {
+        const data = (await res.json()) as NominatimResult[];
+        setResults(data);
+        setOpen(true);
+        setSearchError(data.length === 0 ? "Lokasi tidak ditemukan — coba kata kunci lain" : null);
+        setSearching(false);
+        return;
+      }
+      console.warn("Nominatim gagal:", res.status, "— fallback ke Photon");
+    } catch (e) {
+      console.warn("Nominatim error:", e, "— fallback ke Photon");
+    }
+
+    // Fallback: Photon
+    try {
+      const res = await fetch(`https://photon.komoot.io/api/?limit=5&q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { features: PhotonResult[] };
+      const items = (data.features ?? []).map(photonToResult);
+      setResults(items);
       setOpen(true);
+      setSearchError(items.length === 0 ? "Lokasi tidak ditemukan — coba kata kunci lain" : null);
     } catch {
       setResults([]);
+      setOpen(true);
+      setSearchError("Pencarian gagal — periksa koneksi internet lalu coba lagi");
     } finally {
       setSearching(false);
     }
@@ -124,6 +176,20 @@ export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
           <Loader2 className="absolute top-1/2 right-2 size-3.5 -translate-y-1/2 animate-spin text-teal" aria-hidden />
         ) : null}
       </div>
+      {open && results.length === 0 && searchError ? (
+        <div className="absolute z-50 w-full rounded-lg border border-border-warm bg-white px-3 py-2.5 text-xs shadow-lg">
+          <p className="text-rose-500">{searchError}</p>
+          {!searching ? (
+            <button
+              type="button"
+              onClick={() => { setSearchError(null); void search(query); }}
+              className="mt-1.5 text-[11px] font-semibold text-teal underline-offset-2 hover:underline"
+            >
+              Coba lagi
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {open && results.length > 0 ? (
         <ul className="absolute z-50 max-h-56 w-full overflow-auto rounded-lg border border-border-warm bg-white shadow-lg">
           {results.map((r, i) => (

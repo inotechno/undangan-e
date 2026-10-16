@@ -4,6 +4,7 @@ export const SECTION_IDS = [
   "cover",
   "couple",
   "doa",
+  "mengundang",
   "event_info",
   "countdown",
   "schedule_maps",
@@ -38,6 +39,7 @@ export type SectionLabels = Partial<Record<SectionId, SectionLabel>>;
 /** Judul bawaan tiap section — dipakai bila user/admin belum mengatur label. */
 export const SECTION_DEFAULT_LABELS: SectionLabels = {
   doa: { eyebrow: "Bismillah", title: "Doa Pembuka" },
+  mengundang: { eyebrow: "Dengan Hormat", title: "Mengundang" },
   event_info: { eyebrow: "Save the Date", title: "Waktu & Tempat" },
   schedule_maps: { eyebrow: "Rangkaian Acara", title: "Jadwal & Lokasi" },
   info: { eyebrow: "Informasi", title: "Info Tambahan" },
@@ -72,6 +74,7 @@ export function sectionLabel(
 /** Section yang judul/eyebrow-nya bisa diedit. */
 export const LABELABLE_SECTIONS: SectionId[] = [
   "doa",
+  "mengundang",
   "event_info",
   "schedule_maps",
   "info",
@@ -233,6 +236,24 @@ export const giftAccountSchema = z.object({
   holder: z.string(),
 });
 
+export const amplopDigitalSchema = z
+  .object({
+    /** URL gambar QRIS / e-wallet (GoPay, OVO, Dana, ShopeePay, dll). */
+    qrImage: z.string().optional(),
+    /** Nama layanan (QRIS, GoPay, Dana, dll). */
+    label: z.string().optional(),
+    /** Nama pemilik e-wallet. */
+    holder: z.string().optional(),
+  })
+  .default({});
+
+export const mengundangSchema = z
+  .object({
+    /** Nama pihak yang mengundang, dipisah baris. */
+    names: z.string().max(1000).optional(),
+  })
+  .default({});
+
 export const infoItemSchema = z.object({
   icon: z.string().optional(),
   title: z.string(),
@@ -318,8 +339,10 @@ export const invitationConfigSchema = z.object({
       enabled: z.boolean().default(false),
       instructions: z.string().optional(),
       accounts: z.array(giftAccountSchema).default([]),
+      amplop: amplopDigitalSchema,
     })
-    .default({ enabled: false, accounts: [] }),
+    .default({ enabled: false, accounts: [], amplop: {} }),
+  mengundang: mengundangSchema,
   music: z
     .object({
       enabled: z.boolean().default(false),
@@ -353,6 +376,8 @@ export interface GuestContext {
   code: string;
   quota: number;
   rsvp?: "pending" | "attending" | "declined";
+  /** RSVP per sesi acara. */
+  rsvpSessions?: Array<{ scheduleIndex: number; status: "attending" | "declined" }>;
   /** Payload QR kehadiran (opaque, v1.<code>.<mac>) — untuk ditampilkan di section QR. */
   qrPayload?: string;
 }

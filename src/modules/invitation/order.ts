@@ -1,0 +1,51 @@
+import type { SectionId } from "./types";
+
+/** Urutan baku section dalam undangan (docs/06). */
+export const SECTION_ORDER: SectionId[] = [
+  "couple",
+  "doa",
+  "mengundang",
+  "event_info",
+  "countdown",
+  "schedule_maps",
+  "info",
+  "story",
+  "gallery",
+  "gift",
+  "kado",
+  "video",
+  "live",
+  "rsvp",
+  "guestbook",
+  "wishes_list",
+  "prokes",
+  "adab",
+  "qr_pass",
+  "closing",
+];
+
+/** Label navigasi per section (dipakai menu mengambang). */
+export const SECTION_LABELS: Record<SectionId, string> = {
+  cover: "Sampul",
+  couple: "Mempelai",
+  doa: "Doa",
+  mengundang: "Mengundang",
+  event_info: "Waktu & Tempat",
+  countdown: "Hitung Mundur",
+  schedule_maps: "Jadwal Acara",
+  info: "Info",
+  story: "Kisah Kami",
+  gallery: "Galeri",
+  gift: "Hadiah",
+  kado: "Kado",
+  video: "Video",
+  live: "Live",
+  rsvp: "RSVP",
+  guestbook: "Buku Tamu",
+  qr_pass: "Kartu QR",
+  wishes_list: "Ucapan",
+  prokes: "Prokes",
+  adab: "Adab",
+  closing: "Penutup",
+  music_player: "Musik",
+};

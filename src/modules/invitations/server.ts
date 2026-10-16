@@ -133,7 +133,14 @@ export async function createInvitation(input: {
   if (!tpl) throw new Error("TEMPLATE_NOT_FOUND");
 
   const defaultDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  const config = invitationConfigSchema.parse({ event: { date: defaultDate } });
+  // Jadwal default supaya tab Jadwal langsung punya baris acara (dan location picker/peta tampil).
+  const firstScheduleTitle = input.eventType === "pernikahan" ? "Akad Nikah" : "Acara";
+  const config = invitationConfigSchema.parse({
+    event: {
+      date: defaultDate,
+      schedules: [{ title: firstScheduleTitle, start: defaultDate, venue: "" }],
+    },
+  });
 
   const created = await db
     .insert(schema.invitations)

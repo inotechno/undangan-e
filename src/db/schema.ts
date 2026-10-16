@@ -296,6 +296,8 @@ export const guests = pgTable(
     groupName: text("group_name"),
     quota: integer("quota").notNull().default(1),
     rsvp: rsvpEnum("rsvp").notNull().default("pending"),
+    /** RSVP per sesi acara: [{ scheduleIndex: 0, status: "attending" }] */
+    rsvpSessions: jsonb("rsvp_sessions").$type<Array<{ scheduleIndex: number; status: "attending" | "declined" }>>().default([]),
     source: guestSourceEnum("source").notNull().default("manual"),
     guestCode: text("guest_code").notNull(),
     qrHash: text("qr_hash").notNull().unique(),
