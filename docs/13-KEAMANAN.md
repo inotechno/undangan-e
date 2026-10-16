@@ -35,5 +35,13 @@ Sesi & data pengguna, data tamu (nama, phone), QR/kode tamu, token kelola, krede
 - `audit_logs` append-only untuk: login admin, ubah harga, CRUD voucher, refund, revoke token/QR regen, approve/revoke template (fase nanti), payout.
 - Runbook insiden: (1) putus akses (rotate secrets, revoke token), (2) identifikasi dampak via log, (3) komunikasi ke pengguna terdampak, (4) patch + post-mortem tertulis di `docs/`.
 
+## 5b. Backup & restore
+- Backup harian: `powershell -File scripts\backup-db.ps1` → `backups/undangane-<timestamp>.sql.gz` (retensi 14 file terbaru, folder tidak masuk git).
+- Uji berkala (mis. mingguan / sebelum deploy besar): `powershell -File scripts\restore-test.ps1` — restore dump terbaru ke DB sementara `undangane_restore_test`, bandingkan jumlah tabel + baris dengan DB asli, lalu hapus DB uji.
+- Offsite: salin `backups/` ke storage terpisah (R2/S3) — jadwal & kredensial mengikuti runbook operasional pemilik.
+- Redis rate-limit tidak perlu di-backup (state hilang = aman).
+
 ## 6. Uji keamanan
 CI: authz matrix, signature webhook valid/invalid, sandbox escape (fase nanti), rate-limit. Manual: review dependent vuln, header scan, upload fuzzing ringan.
+- Rate limit global per-IP di `src/proxy.ts` (store Redis via `src/core/rate-limit.ts`, fallback in-memory): auth 15/5 menit; RSVP/buku tamu/ucapan 30/menit; API lain 120/menit; webhook pembayaran dikecualikan.
+- Security headers di `next.config.ts`: CSP (frame-ancestors `none` + X-Frame-Options `DENY` khusus `/admin` & `/dashboard`), HSTS, nosniff, Referrer-Policy, Permissions-Policy. Escape hatch: `RATE_LIMIT_ENABLED=false`.
