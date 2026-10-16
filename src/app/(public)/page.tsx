@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Users,
@@ -25,6 +26,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollReveal } from "@/components/site/scroll-reveal";
 import { Counter } from "@/components/site/counter";
 import { env } from "@/core/config";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const FEATURES = [
   {

@@ -125,7 +125,15 @@ function FramedPhoto({ src, alt, shape }: { src: string; alt: string; shape: "ci
 }
 
 /** Nama cover: horizontal ("A & B") atau vertical (A / & / B). */
-function CoverNames({ names, orientation }: { names: string; orientation: "horizontal" | "vertical" }) {
+function CoverNames({
+  names,
+  orientation,
+  asH1,
+}: {
+  names: string;
+  orientation: "horizontal" | "vertical";
+  asH1: boolean;
+}) {
   if (orientation === "vertical") {
     const parts = names.split(/\s*&\s*/);
     return (
@@ -140,13 +148,14 @@ function CoverNames({ names, orientation }: { names: string; orientation: "horiz
       </div>
     );
   }
+  const Tag = asH1 ? "h1" : "p";
   return (
-    <h1
+    <Tag
       className="max-w-xl text-4xl leading-[1.15] font-bold text-balance sm:text-6xl"
       style={{ fontFamily: "var(--inv-heading)" }}
     >
       {names}
-    </h1>
+    </Tag>
   );
 }
 
@@ -213,8 +222,12 @@ function CoverContent({ ctx, subtitle }: { ctx: SectionContext; subtitle?: strin
         />
       ) : null}
 
-      {/* Nama */}
-      <CoverNames names={names} orientation={coverCfg?.nameOrientation ?? "horizontal"} />
+      {/* Nama — di mode preview halaman demo, h1 milik judul halaman template */}
+      <CoverNames
+        names={names}
+        orientation={coverCfg?.nameOrientation ?? "horizontal"}
+        asH1={ctx.mode !== "preview"}
+      />
 
       {/* Tanggal */}
       <p

@@ -345,12 +345,12 @@ export function CurtainGate({
         </div>
 
         {names ? (
-          <h1
+          <p
             className="mt-6 text-3xl leading-[1.2] font-bold text-balance sm:text-[2.6rem]"
             style={{ fontFamily: "var(--inv-heading)" }}
           >
             {names}
-          </h1>
+          </p>
         ) : null}
 
         {dateLabel ? (
