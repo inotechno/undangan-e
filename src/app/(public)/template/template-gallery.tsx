@@ -76,7 +76,7 @@ export function TemplateGallery() {
             "rounded-full px-4 py-2 text-xs font-semibold transition-colors",
             category === ""
               ? "bg-teal text-white"
-              : "border border-border-warm bg-white text-[#657587] hover:border-teal hover:text-teal",
+              : "border border-border-warm bg-white text-[#4E5C6A] hover:border-teal hover:text-teal",
           )}
         >
           Semua ({CARDS.length})
@@ -94,7 +94,7 @@ export function TemplateGallery() {
                 "rounded-full px-4 py-2 text-xs font-semibold transition-colors",
                 category === cat
                   ? "bg-teal text-white"
-                  : "border border-border-warm bg-white text-[#657587] hover:border-teal hover:text-teal",
+                  : "border border-border-warm bg-white text-[#4E5C6A] hover:border-teal hover:text-teal",
               )}
             >
               {cat} ({n})

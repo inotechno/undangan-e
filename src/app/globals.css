@@ -7,11 +7,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-teal: #0D9488;
-  --color-teal-hover: #0A7A70;
+  --color-teal: #0B7C72;
+  --color-teal-hover: #0A665E;
   --color-teal-soft: #E6F5F2;
   --color-charcoal: #373C3F;
-  --color-muted-warm: #8A847E;
+  --color-muted-warm: #6E6862;
   --color-border-warm: #E9E4DF;
   --color-surface: #FFFFFF;
   --color-success: #3F7D5C;
@@ -66,12 +66,12 @@
   --card-foreground: #373C3F;
   --popover: #FFFFFF;
   --popover-foreground: #373C3F;
-  --primary: #0D9488;
+  --primary: #0B7C72;
   --primary-foreground: #FFFFFF;
   --secondary: #F3EFEB;
   --secondary-foreground: #373C3F;
   --muted: #F3EFEB;
-  --muted-foreground: #8A847E;
+  --muted-foreground: #6E6862;
   --accent: #E6F5F2;
   --accent-foreground: #373C3F;
   --destructive: #B23A48;
@@ -86,7 +86,7 @@
   --radius: 0.75rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #373C3F;
-  --sidebar-primary: #0D9488;
+  --sidebar-primary: #0B7C72;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F3EFEB;
   --sidebar-accent-foreground: #373C3F;

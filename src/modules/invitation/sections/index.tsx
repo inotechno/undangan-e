@@ -362,9 +362,9 @@ function Couple({ ctx }: { ctx: SectionContext }) {
                   />
                 </div>
               ) : null}
-              <h3 className="text-3xl font-bold" style={{ fontFamily: "var(--inv-heading)" }}>
+              <h2 className="text-3xl font-bold" style={{ fontFamily: "var(--inv-heading)" }}>
                 {couple.brideName}
-              </h3>
+              </h2>
               {couple.brideParents ? (
                 <p className="mt-2 text-sm leading-relaxed opacity-70">{couple.brideParents}</p>
               ) : null}
@@ -387,9 +387,9 @@ function Couple({ ctx }: { ctx: SectionContext }) {
                   />
                 </div>
               ) : null}
-              <h3 className="text-3xl font-bold" style={{ fontFamily: "var(--inv-heading)" }}>
+              <h2 className="text-3xl font-bold" style={{ fontFamily: "var(--inv-heading)" }}>
                 {couple.groomName}
-              </h3>
+              </h2>
               {couple.groomParents ? (
                 <p className="mt-2 text-sm leading-relaxed opacity-70">{couple.groomParents}</p>
               ) : null}
@@ -575,7 +575,8 @@ function Story({ ctx }: { ctx: SectionContext }) {
       <SectionHeading eyebrow={lb.eyebrow} title={lb.title} />
       <ol className="relative space-y-8 border-l-2 pl-6" style={{ borderColor: "var(--inv-accent-soft)" }}>
         {config.story.map((item, index) => (
-          <ScrollReveal key={`${item.title}-${index}`} className="relative">
+          <li key={`${item.title}-${index}`} className="relative">
+            <ScrollReveal className="relative">
             <span
               className="absolute top-1.5 -left-[31px] size-3 rounded-full border-2 border-white"
               style={{ background: "var(--inv-accent)" }}
@@ -601,6 +602,7 @@ function Story({ ctx }: { ctx: SectionContext }) {
               />
             ) : null}
           </ScrollReveal>
+          </li>
         ))}
       </ol>
       <Ornament kind={theme.decorations} className="mt-8" />
@@ -728,7 +730,7 @@ function GuestGate({ ctx, children, hint }: { ctx: SectionContext; children: Rea
     return (
       <SectionShell>
         <div
-          className="rounded-[var(--inv-radius)] border border-dashed p-6 text-center text-xs opacity-70"
+          className="rounded-[var(--inv-radius)] border border-dashed p-6 text-center text-xs opacity-80"
           style={{ borderColor: "var(--inv-accent)" }}
         >
           {hint}

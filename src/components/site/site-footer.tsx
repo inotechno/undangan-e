@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Send } from "lucide-react";
 import { UndanganELogo } from "@/components/brand/undangan-e-logo";
 
@@ -45,7 +45,7 @@ export function SiteFooter() {
         <div className="grid gap-10 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <UndanganELogo variant="undangane-compact" width={140} className="brightness-0 invert" />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-[#D8DADC]">
               Platform undangan digital modern untuk berbagai jenis acara.
               Mudah, elegan, dan lengkap.
             </p>
@@ -68,7 +68,7 @@ export function SiteFooter() {
               <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
                 {group.title}
               </h3>
-              <ul className="mt-4 space-y-3 text-sm text-white/70">
+              <ul className="mt-4 space-y-3 text-sm text-[#D8DADC]">
                 {group.links.map((link) => (
                   <li key={link.href + link.label}>
                     <Link href={link.href} className="transition-colors hover:text-white">
@@ -84,7 +84,7 @@ export function SiteFooter() {
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
               Newsletter
             </h3>
-            <p className="mt-4 text-sm text-white/70">
+            <p className="mt-4 text-sm text-[#D8DADC]">
               Dapatkan info promo &amp; template terbaru dari kami.
             </p>
             <form className="mt-4 flex gap-2">
@@ -104,9 +104,9 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/10 pt-8 text-sm text-white/50">
+          <div className="mt-12 border-t border-white/10 pt-8 text-sm text-[#C0C4C6]">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <p>© {CURRENT_YEAR} UndanganE. Seluruh hak cipta dilindungi.</p>
+            <p>Â© {CURRENT_YEAR} UndanganE. Seluruh hak cipta dilindungi.</p>
             <div className="flex gap-6">
               <Link href="#" className="transition-colors hover:text-white">Tentang Kami</Link>
               <Link href="#" className="transition-colors hover:text-white">Karir</Link>
@@ -118,3 +118,5 @@ export function SiteFooter() {
     </footer>
   );
 }
+
+
